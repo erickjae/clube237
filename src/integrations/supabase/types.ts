@@ -322,6 +322,28 @@ export type Database = {
       avatar_allowed: { Args: { path: string }; Returns: boolean }
       club_member: { Args: { require_ready?: boolean }; Returns: string }
       club_owner: { Args: never; Returns: boolean }
+      store_tmdb_movie: {
+        Args: { payload: Json }
+        Returns: {
+          backdrop_path: string | null
+          created_at: string
+          id: string
+          metadata_updated_at: string
+          original_title: string
+          overview: string
+          poster_path: string | null
+          release_date: string
+          runtime: number | null
+          title: string
+          tmdb_id: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "movies"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role: "owner" | "admin"

@@ -30,6 +30,8 @@
  */
 
 @theme inline {
+  --font-sans: 'Manrope', sans-serif;
+  --font-display: 'Barlow Condensed', sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -73,26 +75,27 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --radius: 0.25rem;
+  --background: oklch(0.145 0.003 20);
+  --foreground: oklch(0.94 0.003 75);
+  --card: oklch(0.19 0.003 20);
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.48 0.16 20);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.22 0.006 20);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.2 0.003 20);
+  --muted-foreground: oklch(0.65 0.007 75);
+  --accent: oklch(0.28 0.027 20);
+  --accent-foreground: var(--foreground);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.28 0.004 20);
+  --input: oklch(0.32 0.006 20);
+  --ring: var(--primary);
+  --cinema-overlay: oklch(0.1 0 0 / 34%);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -151,5 +154,86 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    margin: 0;
+    letter-spacing: 0;
   }
 }
+
+.club-shell { min-height: 100svh; display: flex; flex-direction: column; }
+.club-shell main { flex: 1; }
+.container-club { max-width: 1240px; margin-inline: auto; padding-inline: 48px; }
+.club-header { height: 92px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+.wordmark { font-family: var(--font-display); font-weight: 600; font-size: 29px; display: inline-flex; align-items: baseline; }
+.wordmark span { color: var(--primary); }
+.club-nav { display: flex; gap: 32px; font-size: 13px; color: var(--muted-foreground); }
+.club-nav a { padding: 34px 0; border-bottom: 2px solid transparent; transition: color 150ms; }
+.club-nav a:hover, .club-nav a[data-status='active'] { color: var(--foreground); border-color: var(--primary); }
+.cinema-hero { position: relative; height: 560px; overflow: hidden; isolation: isolate; }
+.cinema-hero > img { position: absolute; inset: 0; height: 100%; width: 100%; object-fit: cover; object-position: center 64%; z-index: -2; }
+.cinema-hero::after { content: ''; position: absolute; inset: 0; background: var(--cinema-overlay); z-index: -1; }
+.cinema-content { padding-top: 100px; text-align: center; }
+.eyebrow { color: var(--muted-foreground); text-transform: uppercase; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+.cinema-content .eyebrow { justify-content: center; color: var(--foreground); }
+.eyebrow::before { content: ''; width: 22px; height: 1px; background: var(--primary); }
+.cinema-title { font-family: var(--font-display); font-weight: 600; font-size: 120px; line-height: 1; margin: 24px 0 18px; }
+.cinema-title span { color: var(--primary); }
+.cinema-quote { font-size: 16px; font-weight: 400; }
+.cinema-description { color: var(--muted-foreground); font-size: 13px; margin: 15px auto 0; line-height: 1.8; max-width: 500px; }
+.hero-footnote { position: absolute; bottom: 27px; left: 48px; right: 48px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; text-transform: uppercase; color: var(--muted-foreground); }
+.editorial-section { padding-block: 48px 54px; border-bottom: 1px solid var(--border); }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 30px; }
+.section-heading h2 { font-size: 23px; font-weight: 500; margin-top: 10px; }
+.empty-club { min-height: 150px; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; gap: 12px; color: var(--muted-foreground); }
+.empty-club > svg { width: 26px; height: 26px; stroke-width: 1; color: var(--muted-foreground); }
+.empty-club h3 { font-size: 14px; color: var(--foreground); font-weight: 500; }
+.empty-club p { font-size: 12px; max-width: 420px; line-height: 1.8; }
+.club-footer { padding-block: 34px; }
+.footer-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 25px; }
+.footer-top .wordmark { font-size: 24px; }
+.footer-bottom { border-top: 1px solid var(--border); padding-top: 22px; display: flex; justify-content: space-between; gap: 20px; color: var(--muted-foreground); font-size: 10px; line-height: 1.8; }
+.tmdb-wordmark { font-weight: 800; color: var(--muted-foreground); font-size: 13px; }
+.page-heading { padding-block: 55px 35px; }
+.page-heading h1 { font-family: var(--font-display); font-size: 52px; line-height: 1.1; margin-block: 12px; }
+.page-heading p { color: var(--muted-foreground); font-size: 13px; }
+.search-form { display: flex; gap: 12px; max-width: 640px; margin-bottom: 35px; }
+.field { background: var(--muted); color: var(--foreground); border: 1px solid var(--input); border-radius: var(--radius); min-height: 44px; padding: 12px 15px; width: 100%; font-size: 13px; }
+.field:focus { outline: 1px solid var(--ring); }
+.film-grid { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 28px; padding-bottom: 50px; }
+.film-poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: var(--muted); }
+.film-item h3 { font-size: 13px; margin-block: 12px 4px; }
+.film-item p { font-size: 11px; color: var(--muted-foreground); }
+.auth-area { padding-block: 75px 100px; max-width: 430px; margin-inline: auto; }
+.auth-area h1 { font-family: var(--font-display); font-size: 48px; margin-block: 18px 12px; }
+.auth-area > p { color: var(--muted-foreground); font-size: 13px; line-height: 1.8; margin-bottom: 32px; }
+.auth-form { display: grid; gap: 22px; }
+.auth-form label { display: grid; gap: 10px; font-size: 12px; }
+.auth-form button { height: 44px; }
+.form-error { color: var(--destructive); font-size: 12px; line-height: 1.7; }
+.member-list { display: grid; gap: 25px; padding-bottom: 60px; }
+.member-row { display: flex; gap: 20px; align-items: center; padding-block: 20px; border-bottom: 1px solid var(--border); }
+.club-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--accent); display: grid; place-items: center; font-family: var(--font-display); font-size: 24px; }
+.review-row { padding: 25px 0; border-bottom: 1px solid var(--border); }
+.review-row p { line-height: 1.8; color: var(--muted-foreground); font-size: 13px; margin-top: 12px; }
+@media(max-width: 760px) {
+  .container-club { padding-inline: 22px; }
+  .club-header { height: auto; min-height: 78px; flex-wrap: wrap; gap: 0; padding-top: 17px; }
+  .club-header > .wordmark { flex: 1; }
+  .club-nav { order: 3; width: 100%; gap: 0; justify-content: space-between; font-size: 12px; }
+  .club-nav a { padding-block: 20px 14px; }
+  .cinema-hero { height: 455px; }
+  .cinema-content { padding-top: 75px; }
+  .cinema-title { font-size: 86px; }
+  .cinema-quote { font-size: 13px; max-width: 280px; margin-inline: auto; line-height: 1.8; }
+  .cinema-description { font-size: 12px; max-width: 295px; }
+  .hero-footnote { left: 22px; right: 22px; font-size: 8px; }
+  .editorial-section { padding-block: 34px; }
+  .section-heading h2 { font-size: 20px; }
+  .section-heading { gap: 8px; }
+  .section-heading a { font-size: 11px; padding-inline: 6px; }
+  .footer-bottom { flex-direction: column; gap: 10px; }
+  .film-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+  .auth-area { padding-block: 50px 70px; }
+  .page-heading h1 { font-size: 44px; }
+}
+@media(prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition: none !important; } }

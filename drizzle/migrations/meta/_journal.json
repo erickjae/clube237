@@ -8,6 +8,13 @@
       "when": 1795309810494,
       "tag": "0000_clube237_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795310093774,
+      "tag": "0001_transactional_catalog_and_member_limit",
+      "breakpoints": true
     }
   ]
 }

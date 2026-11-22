@@ -10,33 +10,73 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as FilaRouteImport } from './routes/fila'
+import { Route as FilmesRouteImport } from './routes/filmes'
+import { Route as MembrosRouteImport } from './routes/membros'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FilaRoute = FilaRouteImport.update({
+  id: '/fila',
+  path: '/fila',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FilmesRoute = FilmesRouteImport.update({
+  id: '/filmes',
+  path: '/filmes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembrosRoute = MembrosRouteImport.update({
+  id: '/membros',
+  path: '/membros',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/fila': typeof FilaRoute
+  '/filmes': typeof FilmesRoute
+  '/membros': typeof MembrosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/fila': typeof FilaRoute
+  '/filmes': typeof FilmesRoute
+  '/membros': typeof MembrosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/fila': typeof FilaRoute
+  '/filmes': typeof FilmesRoute
+  '/membros': typeof MembrosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/auth' | '/fila' | '/filmes' | '/membros'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/fila' | '/filmes' | '/membros'
+  id: '__root__' | '/' | '/auth' | '/fila' | '/filmes' | '/membros'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  FilaRoute: typeof FilaRoute
+  FilmesRoute: typeof FilmesRoute
+  MembrosRoute: typeof MembrosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +88,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fila': {
+      id: '/fila'
+      path: '/fila'
+      fullPath: '/fila'
+      preLoaderRoute: typeof FilaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/filmes': {
+      id: '/filmes'
+      path: '/filmes'
+      fullPath: '/filmes'
+      preLoaderRoute: typeof FilmesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/membros': {
+      id: '/membros'
+      path: '/membros'
+      fullPath: '/membros'
+      preLoaderRoute: typeof MembrosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  FilaRoute: FilaRoute,
+  FilmesRoute: FilmesRoute,
+  MembrosRoute: MembrosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

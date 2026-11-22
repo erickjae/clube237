@@ -28,3 +28,11 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Application architecture
+- Keep public content routes SSR-enabled with React Query loader data; account operations use server functions with verified identity and live account-status checks.
+- Keep roles in protected user_roles, separate from public profiles and account metadata, to prevent privilege escalation.
+- Resolve username credentials only inside the login server function; synthetic account addresses are internal and public signup stays disabled.
+- Apply catalog imports atomically through a service-role-only database function after member authorization; metadata updates never touch reviews.
+- Store avatars in a private bucket with profile-ID folder ownership and anonymous reads limited to public-profile objects, because workspace policy blocks public buckets.
+- Keep domain validation in club-rules and enforce integrity again with database constraints and serialization triggers.
