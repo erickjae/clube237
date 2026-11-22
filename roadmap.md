@@ -1,5 +1,6 @@
 # Clube237 — Etapa 01
 
+- [ ] Redirecionar o pós-login por função e proteger `/admin` e `/painel` (bloqueado: ambas as rotas não existem e a criação de telas não foi autorizada).
 - [x] Corrigir a troca da senha provisória e validar o fluxo completo com conta temporária.
 - [x] Enviar a URL de prévia disponível; informar que ainda não está publicada.
 
