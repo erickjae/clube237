@@ -18,10 +18,31 @@ export const login = createServerFn({ method: 'POST' }).inputValidator(z.object(
 
 export const currentAccount = createServerFn({ method: 'POST' }).middleware([clubAuth]).handler(({ context }) => ({ username: context.account.username, mustChangePassword: context.account.must_change_password, role: context.role }));
 
-export const changePassword = createServerFn({ method: 'POST' }).middleware([clubAuth]).inputValidator(z.object({ currentPassword: z.string().min(1), password: passwordSchema })).handler(async ({ data, context }) => {
+export const changePassword = createServerFn({ method: 'POST' }).middleware([clubAuth]).inputValidator(z.object({ currentPassword: z.string().min(1).max(128), password: passwordSchema })).handler(async ({ data, context }) => {
   if (data.currentPassword === data.password) throw new Error('Escolha uma senha diferente da provisória.');
-  const { error } = await context.supabase.auth.updateUser({ password: data.password, current_password: data.currentPassword });
-  if (error) throw new Error('Não foi possível alterar a senha. Confira a senha atual e tente novamente.');
+  const { getRequest } = await import('@tanstack/react-start/server');
+  const authorization = getRequest().headers.get('authorization');
+  const url = process.env['SUPABASE_URL'];
+  const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
+  if (!authorization || !url || !key) throw new Error('Entre novamente para alterar sua senha.');
+  let response: Response;
+  try {
+    response = await fetch(`${url}/auth/v1/user`, {
+      method: 'PUT',
+      headers: { apikey: key, Authorization: authorization, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: data.password, current_password: data.currentPassword }),
+    });
+  } catch {
+    throw new Error('A conexão foi interrompida. Tente novamente.');
+  }
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as { error_code?: string; msg?: string; message?: string } | null;
+    if (body?.error_code === 'invalid_current_password') throw new Error('A senha atual está incorreta.');
+    if (body?.error_code === 'weak_password' || response.status === 422) throw new Error('A nova senha foi recusada. Escolha uma frase longa e única.');
+    if (response.status === 401 || response.status === 403) throw new Error('Sua sessão expirou. Entre novamente.');
+    if (response.status === 429) throw new Error('Muitas tentativas. Aguarde um pouco e tente novamente.');
+    throw new Error('Não foi possível alterar a senha. Tente novamente.');
+  }
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const { error: flagError } = await supabaseAdmin.from('administrators').update({ must_change_password: false }).eq('id', context.account.id);
   if (flagError) throw new Error('Senha alterada; a liberação da conta precisa ser repetida.');

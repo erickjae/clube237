@@ -1,5 +1,6 @@
 # Clube237 — Etapa 01
 
+- [x] Corrigir a troca da senha provisória e validar o fluxo completo com conta temporária.
 - [x] Enviar a URL de prévia disponível; informar que ainda não está publicada.
 
 - [x] Criar tabelas, restrições, permissões e armazenamento reais.
