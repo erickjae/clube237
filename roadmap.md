@@ -1,5 +1,6 @@
 # Clube237 — Etapa 01
 
+- [x] Implementar “Minha fila” com pesquisa TMDB, inclusão, remoção, lista visual, estado vazio e isolamento entre contas.
 - [x] Implementar a gestão real de administradores em `/admin`, com listagem, cadastro, bloqueio, reativação e redefinição de senha.
 
 - [x] Criar `/admin` e `/painel`, redirecionar o pós-login por função e validar todos os acessos protegidos.
