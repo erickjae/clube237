@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { isReleased, metadataFresh, selectOverview, reviewSchema, MAX_AVATAR_BYTES, AVATAR_TYPES, MAX_FAVORITE_GENRES } from '@/lib/club-rules';
+import { isReleased, metadataFresh, selectOverview, reviewSchema, usernameSchema, MAX_AVATAR_BYTES, AVATAR_TYPES, MAX_FAVORITE_GENRES } from '@/lib/club-rules';
 describe('Clube237 business rules', () => {
+  it('preserves the owner username case and rejects unsafe characters', () => {
+    expect(usernameSchema.parse('Admin237')).toBe('Admin237');
+    expect(usernameSchema.safeParse('admin237').success).toBe(true);
+    expect(usernameSchema.safeParse('Admin 237').success).toBe(false);
+    expect(usernameSchema.safeParse('ab').success).toBe(false);
+  });
   it('allows ratings from 0 to 10 with at most one decimal', () => {
     const parse = (rating: number) => reviewSchema.safeParse({ rating, recommend: true, comment: 'Um filme.' }).success;
     expect(parse(0)).toBe(true); expect(parse(10)).toBe(true); expect(parse(7.3)).toBe(true);

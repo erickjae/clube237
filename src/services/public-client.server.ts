@@ -4,7 +4,7 @@ import type { Database } from '@/integrations/supabase/types';
 export function publicClient() {
   const url = process.env['SUPABASE_URL'];
   const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
-  if (!url || !key) throw new Error('Connexion indisponible.');
+  if (!url || !key) throw new Error('Conexão indisponível.');
   return createClient<Database>(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { fetch: (input, init) => {

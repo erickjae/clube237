@@ -6,7 +6,7 @@ import { usernameSchema, passwordSchema } from '@/lib/club-rules';
 export const login = createServerFn({ method: 'POST' }).inputValidator(z.object({ username: usernameSchema, password: z.string().min(1).max(128) })).handler(async ({ data }) => {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const { publicClient } = await import('./public-client.server');
-  const { data: account } = await supabaseAdmin.from('administrators').select('auth_user_id, status').eq('username', data.username).single();
+  const { data: account } = await supabaseAdmin.from('administrators').select('auth_user_id, status').ilike('username', data.username).single();
   if (!account || account.status !== 'active') throw new Error('Usuário ou senha inválidos.');
   const { data: identity } = await supabaseAdmin.auth.admin.getUserById(account.auth_user_id);
   const email = identity.user?.email;
@@ -50,7 +50,9 @@ export const manageAdministrator = createServerFn({ method: 'POST' }).middleware
   const patch = data.action === 'block' ? { status: 'blocked' } : data.action === 'reactivate' ? { status: 'active' } : { must_change_password: true };
   const { error: dbError } = await supabaseAdmin.from('administrators').update(patch).eq('id', data.administratorId);
   if (dbError) throw new Error('Não foi possível atualizar a conta.');
-  const attributes = data.action === 'reset' ? { password: data.temporaryPassword } : { ban_duration: data.action === 'block' ? '876000h' : 'none' };
+  const attributes = data.action === 'reset'
+    ? { password: data.temporaryPassword! }
+    : { ban_duration: data.action === 'block' ? '876000h' : 'none' };
   const { error } = await supabaseAdmin.auth.admin.updateUserById(target.auth_user_id, attributes);
   if (error) throw new Error('Permissões atualizadas; a atualização de acesso precisa ser repetida.');
   return { success: true };

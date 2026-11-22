@@ -7,5 +7,5 @@
 - [ ] Integrar TMDB com cache e regras de lançamento (depende da chave TMDB).
 - [ ] Criar páginas públicas, acesso e identidade visual sem dados simulados.
 - [ ] Executar testes de regras, permissões, autenticação, armazenamento e telas.
-- [ ] Provisionar proprietário (depende do usuário e senha privados).
+- [ ] Provisionar proprietário Admin237 e validar autenticação (aguarda senha provisória aceita pela proteção contra senhas fracas).
 - [ ] Verificar conexão ao GitHub (depende da autorização na interface do Lovable).

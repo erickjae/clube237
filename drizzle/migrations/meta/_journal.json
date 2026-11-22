@@ -15,6 +15,20 @@
       "when": 1795310093774,
       "tag": "0001_transactional_catalog_and_member_limit",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795328569231,
+      "tag": "0002_preserve_username_case",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795328703003,
+      "tag": "0003_tighten_table_privileges",
+      "breakpoints": true
     }
   ]
 }
