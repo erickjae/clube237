@@ -14,7 +14,6 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FilaRouteImport } from './routes/fila'
 import { Route as FilmesRouteImport } from './routes/filmes'
 import { Route as MembrosRouteImport } from './routes/membros'
-import { Route as ApiPublicBootstrapOwnerRouteImport } from './routes/api/public/bootstrap-owner'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,11 +40,6 @@ const MembrosRoute = MembrosRouteImport.update({
   path: '/membros',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicBootstrapOwnerRoute = ApiPublicBootstrapOwnerRouteImport.update({
-  id: '/api/public/bootstrap-owner',
-  path: '/api/public/bootstrap-owner',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,7 +47,6 @@ export interface FileRoutesByFullPath {
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
   '/membros': typeof MembrosRoute
-  '/api/public/bootstrap-owner': typeof ApiPublicBootstrapOwnerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +54,6 @@ export interface FileRoutesByTo {
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
   '/membros': typeof MembrosRoute
-  '/api/public/bootstrap-owner': typeof ApiPublicBootstrapOwnerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,33 +62,13 @@ export interface FileRoutesById {
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
   '/membros': typeof MembrosRoute
-  '/api/public/bootstrap-owner': typeof ApiPublicBootstrapOwnerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/auth'
-    | '/fila'
-    | '/filmes'
-    | '/membros'
-    | '/api/public/bootstrap-owner'
+  fullPaths: '/' | '/auth' | '/fila' | '/filmes' | '/membros'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/auth'
-    | '/fila'
-    | '/filmes'
-    | '/membros'
-    | '/api/public/bootstrap-owner'
-  id:
-    | '__root__'
-    | '/'
-    | '/auth'
-    | '/fila'
-    | '/filmes'
-    | '/membros'
-    | '/api/public/bootstrap-owner'
+  to: '/' | '/auth' | '/fila' | '/filmes' | '/membros'
+  id: '__root__' | '/' | '/auth' | '/fila' | '/filmes' | '/membros'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -105,7 +77,6 @@ export interface RootRouteChildren {
   FilaRoute: typeof FilaRoute
   FilmesRoute: typeof FilmesRoute
   MembrosRoute: typeof MembrosRoute
-  ApiPublicBootstrapOwnerRoute: typeof ApiPublicBootstrapOwnerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -145,13 +116,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MembrosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/bootstrap-owner': {
-      id: '/api/public/bootstrap-owner'
-      path: '/api/public/bootstrap-owner'
-      fullPath: '/api/public/bootstrap-owner'
-      preLoaderRoute: typeof ApiPublicBootstrapOwnerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -161,7 +125,6 @@ const rootRouteChildren: RootRouteChildren = {
   FilaRoute: FilaRoute,
   FilmesRoute: FilmesRoute,
   MembrosRoute: MembrosRoute,
-  ApiPublicBootstrapOwnerRoute: ApiPublicBootstrapOwnerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
