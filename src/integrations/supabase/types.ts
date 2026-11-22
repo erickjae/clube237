@@ -319,9 +319,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      administrator_is_public: {
+        Args: { target_administrator_id: string }
+        Returns: boolean
+      }
       avatar_allowed: { Args: { path: string }; Returns: boolean }
+      avatar_is_public: { Args: { path: string }; Returns: boolean }
       club_member: { Args: { require_ready?: boolean }; Returns: string }
       club_owner: { Args: never; Returns: boolean }
+      profile_is_public: {
+        Args: { target_profile_id: string }
+        Returns: boolean
+      }
       store_tmdb_movie: {
         Args: { payload: Json }
         Returns: {
