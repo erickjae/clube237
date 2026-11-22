@@ -36,3 +36,4 @@ use the editor.
 - Apply catalog imports atomically through a service-role-only database function after member authorization; metadata updates never touch reviews.
 - Store avatars in a private bucket with profile-ID folder ownership and anonymous reads limited to public-profile objects, because workspace policy blocks public buckets.
 - Keep domain validation in club-rules and enforce integrity again with database constraints and serialization triggers.
+- Keep protected panels under the authenticated route layout and revalidate live account status and server-returned roles on every panel load.

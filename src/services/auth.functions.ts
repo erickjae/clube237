@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { clubAuth } from './club-auth';
 import { usernameSchema, passwordSchema } from '@/lib/club-rules';
+import { panelDestination } from '@/lib/panel-access';
 
 export const login = createServerFn({ method: 'POST' }).inputValidator(z.object({ username: usernameSchema, password: z.string().min(1).max(128) })).handler(async ({ data }) => {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
@@ -16,7 +17,21 @@ export const login = createServerFn({ method: 'POST' }).inputValidator(z.object(
   return { access_token: signed.session.access_token, refresh_token: signed.session.refresh_token };
 });
 
-export const currentAccount = createServerFn({ method: 'POST' }).middleware([clubAuth]).handler(({ context }) => ({ username: context.account.username, mustChangePassword: context.account.must_change_password, role: context.role }));
+export const currentAccount = createServerFn({ method: 'POST' })
+  .middleware([clubAuth])
+  .inputValidator(z.object({}))
+  .handler(async ({ context }) => {
+    if (!panelDestination(context.role)) throw new Error('Esta conta não tem uma função válida para acessar o clube.');
+    const { data: profile } = context.role === 'admin'
+      ? await context.supabase.from('profiles').select('display_name').eq('administrator_id', context.account.id).maybeSingle()
+      : { data: null };
+    return {
+      username: context.account.username,
+      displayName: profile?.display_name ?? null,
+      mustChangePassword: context.account.must_change_password,
+      role: context.role,
+    };
+  });
 
 export const changePassword = createServerFn({ method: 'POST' }).middleware([clubAuth]).inputValidator(z.object({ currentPassword: z.string().min(1).max(128), password: passwordSchema })).handler(async ({ data, context }) => {
   if (data.currentPassword === data.password) throw new Error('Escolha uma senha diferente da provisória.');
