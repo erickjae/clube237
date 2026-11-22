@@ -11,3 +11,7 @@ export function canAccessPanel(role: string, panel: PanelPath): boolean {
   if (role === 'owner') return true;
   return role === 'admin' && panel === '/painel';
 }
+
+export function canManageAdministrators(role: string, mustChangePassword: boolean): boolean {
+  return role === 'owner' && !mustChangePassword;
+}

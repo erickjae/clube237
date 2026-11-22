@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { clubAuth } from './club-auth';
 import { usernameSchema, passwordSchema } from '@/lib/club-rules';
-import { panelDestination } from '@/lib/panel-access';
+import { canManageAdministrators, panelDestination } from '@/lib/panel-access';
 
 export const login = createServerFn({ method: 'POST' }).inputValidator(z.object({ username: usernameSchema, password: z.string().min(1).max(128) })).handler(async ({ data }) => {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
@@ -31,6 +31,35 @@ export const currentAccount = createServerFn({ method: 'POST' })
       mustChangePassword: context.account.must_change_password,
       role: context.role,
     };
+  });
+
+export const listAdministrators = createServerFn({ method: 'POST' })
+  .middleware([clubAuth])
+  .handler(async ({ context }) => {
+    if (!canManageAdministrators(context.role, context.account.must_change_password)) {
+      throw new Error('Somente o proprietário pode consultar as contas.');
+    }
+    const [accounts, roles, profiles] = await Promise.all([
+      context.supabase.from('administrators').select('id, auth_user_id, username, status, created_at'),
+      context.supabase.from('user_roles').select('user_id, role'),
+      context.supabase.from('profiles').select('administrator_id, display_name'),
+    ]);
+    if (accounts.error || roles.error || profiles.error) throw new Error('Não foi possível carregar os administradores.');
+
+    const roleByUser = new Map((roles.data ?? []).map((row) => [row.user_id, row.role]));
+    const nameByAccount = new Map((profiles.data ?? []).map((row) => [row.administrator_id, row.display_name]));
+    const administrators = (accounts.data ?? [])
+      .filter((account) => roleByUser.get(account.auth_user_id) === 'admin')
+      .map((account) => ({
+        id: account.id,
+        username: account.username,
+        displayName: nameByAccount.get(account.id) ?? account.username,
+        status: account.status === 'blocked' ? 'blocked' as const : 'active' as const,
+        createdAt: account.created_at,
+      }))
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+
+    return { total: administrators.length, administrators };
   });
 
 export const changePassword = createServerFn({ method: 'POST' }).middleware([clubAuth]).inputValidator(z.object({ currentPassword: z.string().min(1).max(128), password: passwordSchema })).handler(async ({ data, context }) => {
@@ -65,7 +94,7 @@ export const changePassword = createServerFn({ method: 'POST' }).middleware([clu
 });
 
 export const createAdministrator = createServerFn({ method: 'POST' }).middleware([clubAuth]).inputValidator(z.object({ username: usernameSchema, temporaryPassword: passwordSchema })).handler(async ({ data, context }) => {
-  if (context.role !== 'owner' || context.account.must_change_password) throw new Error('Somente o proprietário pode criar contas.');
+  if (!canManageAdministrators(context.role, context.account.must_change_password)) throw new Error('Somente o proprietário pode criar contas.');
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const email = `${crypto.randomUUID()}@accounts.clube237.invalid`;
   const { data: created, error } = await supabaseAdmin.auth.admin.createUser({ email, password: data.temporaryPassword, email_confirm: true });
@@ -78,7 +107,7 @@ export const createAdministrator = createServerFn({ method: 'POST' }).middleware
 });
 
 export const manageAdministrator = createServerFn({ method: 'POST' }).middleware([clubAuth]).inputValidator(z.object({ administratorId: z.string().uuid(), action: z.enum(['block','reactivate','reset']), temporaryPassword: passwordSchema.optional() })).handler(async ({ data, context }) => {
-  if (context.role !== 'owner' || context.account.must_change_password) throw new Error('Somente o proprietário pode gerenciar contas.');
+  if (!canManageAdministrators(context.role, context.account.must_change_password)) throw new Error('Somente o proprietário pode gerenciar contas.');
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const { data: target } = await context.supabase.from('administrators').select('auth_user_id').eq('id', data.administratorId).single();
   if (!target || target.auth_user_id === context.userId) throw new Error('Conta inválida para esta operação.');

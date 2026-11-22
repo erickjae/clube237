@@ -1,13 +1,13 @@
 # Clube237 — Etapa 01
 
-- [ ] Implementar a gestão real de administradores em `/admin`, com listagem, cadastro, bloqueio, reativação e redefinição de senha.
+- [x] Implementar a gestão real de administradores em `/admin`, com listagem, cadastro, bloqueio, reativação e redefinição de senha.
 
 - [x] Criar `/admin` e `/painel`, redirecionar o pós-login por função e validar todos os acessos protegidos.
 - [x] Corrigir a troca da senha provisória e validar o fluxo completo com conta temporária.
 - [x] Enviar a URL de prévia disponível; informar que ainda não está publicada.
 
 - [x] Criar tabelas, restrições, permissões e armazenamento reais.
-- [ ] Implementar login por usuário, troca de senha e operações protegidas do proprietário (login e exigência de troca validados; conclusão da troca e operações aguardam o proprietário).
+- [x] Implementar login por usuário, troca de senha e operações protegidas do proprietário.
 - [ ] Integrar TMDB com cache e regras de lançamento (pesquisa real validada; cache autenticado pendente).
 - [x] Criar páginas públicas, acesso e identidade visual sem dados simulados.
 - [ ] Executar testes de regras, permissões, autenticação, armazenamento e telas (regras, RLS, pesquisa e telas validados; conta e avatar pendem do proprietário).

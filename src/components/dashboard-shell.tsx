@@ -1,4 +1,4 @@
-import { useState, type ComponentType } from 'react';
+import { useState, type ComponentType, type ReactNode } from 'react';
 import { Link, useRouter } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowUpRight, LogOut } from 'lucide-react';
@@ -11,6 +11,7 @@ type NavigationItem = {
   icon: ComponentType<{ size?: number; strokeWidth?: number }>;
   current?: boolean;
   note?: string;
+  onSelect?: () => void;
 };
 
 type DashboardShellProps = {
@@ -19,9 +20,10 @@ type DashboardShellProps = {
   welcome: string;
   description: string;
   navigation: NavigationItem[];
+  children?: ReactNode;
 };
 
-export function DashboardShell({ eyebrow, title, welcome, description, navigation }: DashboardShellProps) {
+export function DashboardShell({ eyebrow, title, welcome, description, navigation, children }: DashboardShellProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
@@ -55,11 +57,12 @@ export function DashboardShell({ eyebrow, title, welcome, description, navigatio
           <ul>
             {navigation.map((item) => {
               const Icon = item.icon;
+              const content = <><Icon size={18} strokeWidth={1.5} /><span>{item.label}</span>{item.note && <small>{item.note}</small>}</>;
               return (
                 <li key={item.label} className={item.current ? 'dashboard-nav-item is-current' : 'dashboard-nav-item'}>
-                  <Icon size={18} strokeWidth={1.5} />
-                  <span>{item.label}</span>
-                  {item.note && <small>{item.note}</small>}
+                  {item.onSelect
+                    ? <button type="button" className="dashboard-nav-entry" onClick={item.onSelect}>{content}</button>
+                    : <div className="dashboard-nav-entry">{content}</div>}
                 </li>
               );
             })}
@@ -74,6 +77,7 @@ export function DashboardShell({ eyebrow, title, welcome, description, navigatio
             <p>{description}</p>
           </section>
           {error && <p role="alert" className="form-error">{error}</p>}
+          {children}
           <Link to="/" className="dashboard-public-link">Ver a página pública do clube <ArrowUpRight size={15} /></Link>
         </main>
       </div>
