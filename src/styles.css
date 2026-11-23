@@ -516,3 +516,20 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
 .film-genres { font-size:11px;line-height:1.6;color:var(--muted-foreground);margin-top:6px; }
 .film-review-count { font-size:10px;color:var(--muted-foreground);margin-top:5px; }
 @media(max-width:760px) { .film-filters { flex-direction:column;align-items:stretch; }.film-filters input,.film-filters select { flex:auto;width:100%;min-width:0; }.film-rating-badge { top:7px;right:7px;padding:6px 8px;font-size:12px; } }
+
+/* Member dashboard */
+.member-overview { display:grid;gap:24px; }
+.member-overview-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px; }
+.member-overview-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.member-overview-stat { display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:22px;border:1px solid var(--border);border-radius:12px;background:var(--card); }
+.member-overview-stat svg { color:var(--primary); }
+.member-overview-stat strong { font-size:32px;font-weight:650;line-height:1.1; }
+.member-overview-stat span { font-size:12px;color:var(--muted-foreground); }
+.member-overview-genres { padding:24px;border:1px solid var(--border);border-radius:12px; }
+.member-overview-genres h3 { font-size:20px;margin-bottom:22px; }
+.member-overview-genre-list { display:grid;gap:16px;margin-bottom:18px; }
+.member-overview-genre>div:first-child { display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-bottom:7px; }
+.member-overview-track { height:8px;background:var(--muted);border-radius:20px;overflow:hidden; }
+.member-overview-track span { display:block;height:100%;background:var(--primary);border-radius:20px; }
+.watchlist-result-info button + button { margin-top:8px; }
+@media(max-width:760px) { .member-overview-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.member-overview-stat { padding:15px; }.member-overview-stat strong { font-size:27px; }.member-overview-genres { padding:16px; } }
