@@ -18,7 +18,7 @@ export const myReviews = createServerFn({ method: 'GET' })
 
     const { data: movies, error: moviesError } = await context.supabase
       .from('movies')
-      .select('id, title, poster_path, release_date')
+      .select('id, tmdb_id, title, poster_path, release_date')
       .in('id', reviews.map((review) => review.movie_id));
 
     if (moviesError) throw new Error('Não foi possível carregar os filmes avaliados.');
@@ -34,6 +34,7 @@ export const myReviews = createServerFn({ method: 'GET' })
         createdAt: review.created_at,
         movie: {
           id: movie.id,
+          tmdbId: movie.tmdb_id,
           title: movie.title,
           posterPath: movie.poster_path,
           releaseDate: movie.release_date,
@@ -55,6 +56,21 @@ export const submitReview = createServerFn({ method: 'POST' })
       p_comment: data.comment,
     });
 
+    if (error) throw new Error(reviewWriteError(error.code));
+    return { id: saved.id };
+  });
+
+export const submitDirectReview = createServerFn({ method: 'POST' })
+  .middleware([clubAuth])
+  .inputValidator(reviewSchema.extend({ movieId: z.string().uuid() }))
+  .handler(async ({ data, context }) => {
+    if (context.account.must_change_password) throw new Error('Altere sua senha provisória primeiro.');
+    const { data: saved, error } = await context.supabase.rpc('submit_direct_club_review', {
+      p_movie_id: data.movieId,
+      p_rating: data.rating,
+      p_recommend: data.recommend,
+      p_comment: data.comment,
+    });
     if (error) throw new Error(reviewWriteError(error.code));
     return { id: saved.id };
   });

@@ -39,6 +39,7 @@ export function ReviewsPanel() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: myReviewsQueryOptions.queryKey }),
         queryClient.invalidateQueries({ queryKey: ['public-catalog'] }),
+        queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
       ]);
       setNotice(`Avaliação de ${title} excluída. O filme não voltou para a sua fila.`);
     } catch (deleteError) {

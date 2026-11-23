@@ -5,18 +5,20 @@ import { Film, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { reviewSchema } from '@/lib/club-rules';
-import { submitReview } from '@/services/reviews.functions';
+import { submitReview, submitDirectReview } from '@/services/reviews.functions';
 import type { WatchlistEntry } from '@/components/watchlist-panel';
 
 type ReviewFormDialogProps = {
   entry: WatchlistEntry;
+  direct?: boolean;
   onClose: () => void;
   onSaved: (title: string) => void;
 };
 
-export function ReviewFormDialog({ entry, onClose, onSaved }: ReviewFormDialogProps) {
+export function ReviewFormDialog({ entry, direct = false, onClose, onSaved }: ReviewFormDialogProps) {
   const queryClient = useQueryClient();
   const saveReview = useServerFn(submitReview);
+  const saveDirect = useServerFn(submitDirectReview);
   const [rating, setRating] = useState('');
   const [recommend, setRecommend] = useState<boolean | null>(null);
   const [comment, setComment] = useState('');
@@ -42,11 +44,13 @@ export function ReviewFormDialog({ entry, onClose, onSaved }: ReviewFormDialogPr
 
     setBusy(true);
     try {
-      await saveReview({ data: { ...parsed.data, movieId: entry.movie.id } });
+      if (direct) await saveDirect({ data: { ...parsed.data, movieId: entry.movie.id } });
+      else await saveReview({ data: { ...parsed.data, movieId: entry.movie.id } });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['my-watchlist'] }),
         queryClient.invalidateQueries({ queryKey: ['my-reviews'] }),
         queryClient.invalidateQueries({ queryKey: ['public-catalog'] }),
+        queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
       ]);
       onSaved(entry.movie.title);
     } catch (saveError) {
@@ -61,7 +65,7 @@ export function ReviewFormDialog({ entry, onClose, onSaved }: ReviewFormDialogPr
       <DialogContent className="review-form-dialog">
         <DialogHeader>
           <DialogTitle>Avaliar filme</DialogTitle>
-          <DialogDescription>Registre sua percepção. Ao salvar, o filme sairá automaticamente da sua fila.</DialogDescription>
+          <DialogDescription>Registre sua percepção. Se o filme estiver na fila, ele sairá dela automaticamente.</DialogDescription>
         </DialogHeader>
         <div className="review-form-layout">
           <div className="review-movie-summary">

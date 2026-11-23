@@ -4,6 +4,7 @@ import { useServerFn } from '@tanstack/react-start';
 import { Film, ListPlus, Search, Star, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EmptyClub } from '@/components/catalog-view';
+import { myReviewsQueryOptions } from '@/components/reviews-panel';
 import { ReviewFormDialog } from '@/components/review-form-dialog';
 import { searchMovies } from '@/services/catalog.functions';
 import { registerMovie } from '@/services/movie.functions';
@@ -19,6 +20,7 @@ export type WatchlistEntry = Awaited<ReturnType<typeof myWatchlist>>[number];
 
 export function WatchlistPanel() {
   const { data: entries } = useSuspenseQuery(myWatchlistQueryOptions);
+  const { data: reviews } = useSuspenseQuery(myReviewsQueryOptions);
   const queryClient = useQueryClient();
   const search = useServerFn(searchMovies);
   const register = useServerFn(registerMovie);
@@ -29,14 +31,31 @@ export function WatchlistPanel() {
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [reviewTarget, setReviewTarget] = useState<WatchlistEntry | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<{ entry: WatchlistEntry; direct: boolean } | null>(null);
 
   const queuedTmdbIds = new Set(entries.map((entry) => entry.movie.tmdbId));
+  const reviewedMovieIds = new Set(reviews.map(review => review.movie.id));
+  const reviewedTmdbIds = new Set(reviews.map(review => review.movie.tmdbId));
+
+  async function evaluateNow(movie: SearchResult) {
+    setBusy(`review-${movie.tmdb_id}`); setError(''); setNotice('');
+    try {
+      const stored = await register({ data: { tmdbId: movie.tmdb_id } });
+      if (reviewedMovieIds.has(stored.id)) { setNotice(`${movie.title} já foi avaliado por você.`); return; }
+      const queued = entries.find(entry => entry.movie.id === stored.id);
+      setReviewTarget({ direct: true, entry: queued ?? {
+        id: `direct-${stored.id}`, addedAt: new Date().toISOString(),
+        movie: { id: stored.id, tmdbId: movie.tmdb_id, title: stored.title, posterPath: stored.poster_path, releaseDate: stored.release_date },
+      } });
+    } catch (reviewError) { setError(reviewError instanceof Error ? reviewError.message : 'Não foi possível preparar a avaliação.'); }
+    finally { setBusy(''); }
+  }
 
   async function refreshWatchlist() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: myWatchlistQueryOptions.queryKey }),
       queryClient.invalidateQueries({ queryKey: ['public-catalog'] }),
+        queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
     ]);
   }
 
@@ -124,6 +143,7 @@ export function WatchlistPanel() {
               {results.map((movie) => {
                 const queued = queuedTmdbIds.has(movie.tmdb_id);
                 const adding = busy === `add-${movie.tmdb_id}`;
+                const alreadyReviewed = reviewedTmdbIds.has(movie.tmdb_id);
                 return (
                   <article className="watchlist-result" key={movie.tmdb_id}>
                     {movie.poster_path
@@ -132,7 +152,8 @@ export function WatchlistPanel() {
                     <div className="watchlist-result-info">
                       <h4>{movie.title}</h4>
                       <p>{movie.release_date.slice(0, 4)}</p>
-                      <Button variant={queued ? 'ghost' : 'outline'} size="sm" disabled={busy !== '' || queued} onClick={() => addMovie(movie)}>
+                      <Button variant="default" size="sm" disabled={busy !== '' || alreadyReviewed} onClick={() => evaluateNow(movie)}><Star />{busy === `review-${movie.tmdb_id}` ? 'Abrindo…' : alreadyReviewed ? 'Já avaliado' : 'Avaliar agora'}</Button>
+                      <Button variant={queued ? 'ghost' : 'outline'} size="sm" disabled={busy !== '' || queued || alreadyReviewed} onClick={() => addMovie(movie)}>
                         <ListPlus />{adding ? 'Adicionando…' : queued ? 'Já está na fila' : 'Adicionar à fila'}
                       </Button>
                     </div>
@@ -161,7 +182,7 @@ export function WatchlistPanel() {
                   <p>{entry.movie.releaseDate.slice(0, 4)}</p>
                 </div>
                 <div className="watchlist-row-actions">
-                  <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => { setError(''); setNotice(''); setReviewTarget(entry); }}>
+                  <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => { setError(''); setNotice(''); setReviewTarget({ entry, direct: false }); }}>
                     <Star />Avaliar filme
                   </Button>
                   <Button variant="ghost" size="sm" disabled={busy !== ''} onClick={() => removeMovie(entry.id, entry.movie.title)}>
@@ -174,12 +195,13 @@ export function WatchlistPanel() {
         ) : <EmptyClub title="Sua fila está vazia" description="Pesquise um filme acima e adicione o primeiro título à sua lista." />}
       </div>
       {reviewTarget && <ReviewFormDialog
-        key={reviewTarget.id}
-        entry={reviewTarget}
+        key={reviewTarget.entry.id}
+        entry={reviewTarget.entry}
+        direct={reviewTarget.direct}
         onClose={() => setReviewTarget(null)}
         onSaved={(title) => {
           setReviewTarget(null);
-          setNotice(`Avaliação de ${title} salva. O filme saiu da sua fila.`);
+          setNotice(`Avaliação de ${title} publicada com sucesso.`);
         }}
       />}
     </section>
