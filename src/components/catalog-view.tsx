@@ -47,7 +47,7 @@ export function CatalogView({ filters }: { filters: Filters }) {
     } }),
   });
   const total = search.data?.total ?? 0;
-  const pages = Math.max(1, Math.ceil(total / 48));
+  const pages = Math.max(1, Math.ceil(total / 50));
   const movies = search.data?.movies ?? [];
   return <>
     <form className="search-form film-filters" onSubmit={event => event.preventDefault()}>
@@ -77,7 +77,7 @@ export function CatalogView({ filters }: { filters: Filters }) {
       </label>}
       {(query || genreId || administratorId || recommend || sort !== 'best' || hideReviewed) && <Button variant="ghost" type="button" onClick={() => change(() => { setQuery(''); setGenreId(''); setAdministratorId(''); setRecommend(''); setSort('best'); setHideReviewed(false); })}>Limpar</Button>}
     </form>
-    <p className="text-sm text-muted-foreground" aria-live="polite">{search.isPending ? 'Carregando filmes...' : `${total} ${total === 1 ? 'filme encontrado' : 'filmes encontrados'} · 48 por página`}</p>
+    <p className="text-sm text-muted-foreground" aria-live="polite">{search.isPending ? 'Carregando filmes...' : `${total} ${total === 1 ? 'filme encontrado' : 'filmes encontrados'} · 50 por página`}</p>
     {search.isError ? <div role="alert"><p>Não foi possível carregar os filmes.</p><Button type="button" onClick={() => void search.refetch()}>Tentar novamente</Button></div> : null}
     {search.isSuccess && (movies.length ? <div className="film-grid">{movies.map(movie =>
       <Link to="/filmes/$movieId" params={{ movieId: movie.id }} className="film-item" key={movie.id}>
