@@ -12,13 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as FilaRouteImport } from './routes/fila'
 import { Route as FilmesRouteImport } from './routes/filmes'
-import { Route as FilmesMovieIdRouteImport } from './routes/filmes_.$movieId'
 import { Route as MembrosRouteImport } from './routes/membros'
-import { Route as MembrosProfileIdRouteImport } from './routes/membros_.$profileId'
+import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as FilmesMovieIdRouteImport } from './routes/filmes_.$movieId'
+import { Route as MembrosProfileIdRouteImport } from './routes/membros_.$profileId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,6 +36,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
+  id: '/esqueci-senha',
+  path: '/esqueci-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FilaRoute = FilaRouteImport.update({
   id: '/fila',
   path: '/fila',
@@ -44,19 +51,14 @@ const FilmesRoute = FilmesRouteImport.update({
   path: '/filmes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FilmesMovieIdRoute = FilmesMovieIdRouteImport.update({
-  id: '/filmes_/$movieId',
-  path: '/filmes/$movieId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MembrosProfileIdRoute = MembrosProfileIdRouteImport.update({
-  id: '/membros_/$profileId',
-  path: '/membros/$profileId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MembrosRoute = MembrosRouteImport.update({
   id: '/membros',
   path: '/membros',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
+  id: '/redefinir-senha',
+  path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -69,70 +71,111 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const FilmesMovieIdRoute = FilmesMovieIdRouteImport.update({
+  id: '/filmes_/$movieId',
+  path: '/filmes/$movieId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembrosProfileIdRoute = MembrosProfileIdRouteImport.update({
+  id: '/membros_/$profileId',
+  path: '/membros/$profileId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
-  '/filmes/$movieId': typeof FilmesMovieIdRoute
   '/membros': typeof MembrosRoute
-  '/membros/$profileId': typeof MembrosProfileIdRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/filmes/$movieId': typeof FilmesMovieIdRoute
+  '/membros/$profileId': typeof MembrosProfileIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
-  '/filmes/$movieId': typeof FilmesMovieIdRoute
   '/membros': typeof MembrosRoute
-  '/membros/$profileId': typeof MembrosProfileIdRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/filmes/$movieId': typeof FilmesMovieIdRoute
+  '/membros/$profileId': typeof MembrosProfileIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
   '/membros': typeof MembrosRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/filmes_/$movieId': typeof FilmesMovieIdRoute
   '/membros_/$profileId': typeof MembrosProfileIdRoute
-  '/_authenticated/painel': typeof AuthenticatedPainelRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/fila' | '/filmes' | '/filmes/$movieId' | '/membros' | '/membros/$profileId' | '/admin' | '/painel'
+    | '/'
+    | '/auth'
+    | '/esqueci-senha'
+    | '/fila'
+    | '/filmes'
+    | '/membros'
+    | '/redefinir-senha'
+    | '/admin'
+    | '/painel'
+    | '/filmes/$movieId'
+    | '/membros/$profileId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/fila' | '/filmes' | '/filmes/$movieId' | '/membros' | '/membros/$profileId' | '/admin' | '/painel'
+  to:
+    | '/'
+    | '/auth'
+    | '/esqueci-senha'
+    | '/fila'
+    | '/filmes'
+    | '/membros'
+    | '/redefinir-senha'
+    | '/admin'
+    | '/painel'
+    | '/filmes/$movieId'
+    | '/membros/$profileId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/esqueci-senha'
     | '/fila'
     | '/filmes'
-    | '/filmes_/$movieId'
     | '/membros'
-    | '/membros_/$profileId'
+    | '/redefinir-senha'
     | '/_authenticated/admin'
     | '/_authenticated/painel'
+    | '/filmes_/$movieId'
+    | '/membros_/$profileId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FilaRoute: typeof FilaRoute
   FilmesRoute: typeof FilmesRoute
-  FilmesMovieIdRoute: typeof FilmesMovieIdRoute
   MembrosRoute: typeof MembrosRoute
+  RedefinirSenhaRoute: typeof RedefinirSenhaRoute
+  FilmesMovieIdRoute: typeof FilmesMovieIdRoute
   MembrosProfileIdRoute: typeof MembrosProfileIdRoute
 }
 
@@ -159,6 +202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/esqueci-senha': {
+      id: '/esqueci-senha'
+      path: '/esqueci-senha'
+      fullPath: '/esqueci-senha'
+      preLoaderRoute: typeof EsqueciSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fila': {
       id: '/fila'
       path: '/fila'
@@ -173,25 +223,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FilmesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/filmes_/$movieId': {
-      id: '/filmes_/$movieId'
-      path: '/filmes/$movieId'
-      fullPath: '/filmes/$movieId'
-      preLoaderRoute: typeof FilmesMovieIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/membros_/$profileId': {
-      id: '/membros_/$profileId'
-      path: '/membros/$profileId'
-      fullPath: '/membros/$profileId'
-      preLoaderRoute: typeof MembrosProfileIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/membros': {
       id: '/membros'
       path: '/membros'
       fullPath: '/membros'
       preLoaderRoute: typeof MembrosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redefinir-senha': {
+      id: '/redefinir-senha'
+      path: '/redefinir-senha'
+      fullPath: '/redefinir-senha'
+      preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -207,6 +250,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/painel'
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/filmes_/$movieId': {
+      id: '/filmes_/$movieId'
+      path: '/filmes/$movieId'
+      fullPath: '/filmes/$movieId'
+      preLoaderRoute: typeof FilmesMovieIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/membros_/$profileId': {
+      id: '/membros_/$profileId'
+      path: '/membros/$profileId'
+      fullPath: '/membros/$profileId'
+      preLoaderRoute: typeof MembrosProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -228,10 +285,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  EsqueciSenhaRoute: EsqueciSenhaRoute,
   FilaRoute: FilaRoute,
   FilmesRoute: FilmesRoute,
-  FilmesMovieIdRoute: FilmesMovieIdRoute,
   MembrosRoute: MembrosRoute,
+  RedefinirSenhaRoute: RedefinirSenhaRoute,
+  FilmesMovieIdRoute: FilmesMovieIdRoute,
   MembrosProfileIdRoute: MembrosProfileIdRoute,
 }
 export const routeTree = rootRouteImport
