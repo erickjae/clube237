@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { queryOptions, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import { Film, Star, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,17 +7,27 @@ import { EmptyClub } from '@/components/catalog-view';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { formatReviewDate } from '@/lib/review-rules';
-import { deleteReview, myReviews } from '@/services/reviews.functions';
+import { deleteReview, myReviews, myReviewsPage } from '@/services/reviews.functions';
 
 export const myReviewsQueryOptions = queryOptions({
   queryKey: ['my-reviews'],
   queryFn: () => myReviews(),
 });
 
-type ReviewEntry = Awaited<ReturnType<typeof myReviews>>[number];
+type ReviewEntry = Awaited<ReturnType<typeof myReviewsPage>>['reviews'][number];
 
 export function ReviewsPanel() {
-  const { data: reviews } = useSuspenseQuery(myReviewsQueryOptions);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [recommendation, setRecommendation] = useState<'all' | 'yes' | 'no'>('all');
+  const [sort, setSort] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
+  const history = useQuery({
+    queryKey: ['my-reviews-page', page, search, recommendation, sort],
+    queryFn: () => myReviewsPage({ data: { page, search, recommendation, sort } }),
+  });
+  const reviews = history.data?.reviews ?? [];
+  const total = history.data?.total ?? 0;
+  const pages = Math.max(1, Math.ceil(total / 20));
   const queryClient = useQueryClient();
   const removeReview = useServerFn(deleteReview);
   const [detail, setDetail] = useState<ReviewEntry | null>(null);
@@ -38,6 +48,7 @@ export function ReviewsPanel() {
       setDetail(null);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: myReviewsQueryOptions.queryKey }),
+        queryClient.invalidateQueries({ queryKey: ['my-reviews-page'] }),
         queryClient.invalidateQueries({ queryKey: ['public-catalog'] }),
         queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
       ]);
@@ -54,15 +65,27 @@ export function ReviewsPanel() {
       <div className="watchlist-heading">
         <div>
           <p className="dashboard-section-number">Depois dos créditos</p>
-          <h2 id="reviews-title">Minhas avaliações <span>{reviews.length}</span></h2>
+          <h2 id="reviews-title">Minhas avaliações <span>{total}</span></h2>
         </div>
         <p>Suas percepções sobre os filmes, das mais recentes às primeiras.</p>
       </div>
 
+      <form className="search-form film-filters" onSubmit={event => event.preventDefault()}>
+        <input className="field" aria-label="Buscar minhas avaliações" placeholder="Buscar filme avaliado..." value={search} maxLength={100} onChange={event => { setSearch(event.target.value); setPage(1); }} />
+        <select className="field" aria-label="Filtrar recomendações" value={recommendation} onChange={event => { setRecommendation(event.target.value as typeof recommendation); setPage(1); }}>
+          <option value="all">Todas</option><option value="yes">Recomendo</option><option value="no">Não recomendo</option>
+        </select>
+        <select className="field" aria-label="Ordenar avaliações" value={sort} onChange={event => { setSort(event.target.value as typeof sort); setPage(1); }}>
+          <option value="newest">Mais recentes</option><option value="oldest">Mais antigas</option><option value="highest">Maior nota</option><option value="lowest">Menor nota</option>
+        </select>
+      </form>
+      <p className="text-sm text-muted-foreground">{total} avaliações encontradas · 20 por página</p>
+      {history.isPending && <p role="status">Carregando avaliações...</p>}
+      {history.isError && <p role="alert">Não foi possível carregar suas avaliações. <Button type="button" onClick={() => void history.refetch()}>Tentar novamente</Button></p>}
       {notice && <p className="management-notice" role="status">{notice}</p>}
       {error && !deleteTarget && <p className="form-error watchlist-error" role="alert">{error}</p>}
 
-      {reviews.length > 0 ? (
+      {history.isSuccess && reviews.length > 0 ? (
         <div className="reviews-list">
           {reviews.map((review) => (
             <article className="review-card" key={review.id}>
@@ -89,6 +112,11 @@ export function ReviewsPanel() {
         </div>
       ) : <EmptyClub title="Nenhuma avaliação ainda" description="Escolha um filme na sua fila e registre sua primeira percepção." />}
 
+      {history.isSuccess && pages > 1 && <nav aria-label="Páginas de avaliações" className="flex items-center justify-center gap-3 mt-8">
+        <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Anterior</Button>
+        <span>Página {page} de {pages}</span>
+        <Button variant="outline" disabled={page >= pages} onClick={() => setPage(p => p + 1)}>Próxima</Button>
+      </nav>}
       <Dialog open={detail !== null} onOpenChange={(open) => { if (!open) setDetail(null); }}>
         <DialogContent className="review-detail-dialog">
           <DialogHeader>

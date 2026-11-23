@@ -108,3 +108,35 @@ export const deleteReview = createServerFn({ method: 'POST' })
     if (removed.length === 0) throw new Error('Você só pode excluir as próprias avaliações.');
     return { success: true };
   });
+
+export const myReviewsPage = createServerFn({ method: 'POST' })
+  .middleware([clubAuth])
+  .inputValidator(z.object({
+    page: z.number().int().min(1).max(100000),
+    search: z.string().trim().max(100),
+    recommendation: z.enum(['all', 'yes', 'no']),
+    sort: z.enum(['newest', 'oldest', 'highest', 'lowest']),
+  }))
+  .handler(async ({ context, data }) => {
+    const orderColumn = data.sort === 'highest' || data.sort === 'lowest' ? 'rating' : 'created_at';
+    const ascending = data.sort === 'oldest' || data.sort === 'lowest';
+    let query = context.supabase.from('reviews')
+      .select('id, movie_id, rating, recommend, comment, created_at, movie:movies!inner(id, tmdb_id, title, poster_path, release_date)', { count: 'exact' })
+      .eq('administrator_id', context.account.id);
+    if (data.search) query = query.ilike('movie.title', `%${data.search.replace(/[%,_]/g, '')}%`);
+    if (data.recommendation !== 'all') query = query.eq('recommend', data.recommendation === 'yes');
+    const { data: rows, count, error } = await query
+      .order(orderColumn, { ascending })
+      .order('id', { ascending: true })
+      .range((data.page - 1) * 20, data.page * 20 - 1);
+    if (error) throw new Error('Não foi possível carregar seu histórico.');
+    return {
+      total: count ?? 0,
+      reviews: (rows ?? []).map(r => ({
+        id: r.id, rating: Number(r.rating), recommend: r.recommend,
+        comment: r.comment, createdAt: r.created_at,
+        movie: { id: r.movie.id, tmdbId: r.movie.tmdb_id, title: r.movie.title,
+          posterPath: r.movie.poster_path, releaseDate: r.movie.release_date },
+      })),
+    };
+  });

@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { CircleUserRound, LayoutDashboard, ListVideo, Star } from 'lucide-react';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { WatchlistPanel, myWatchlistQueryOptions } from '@/components/watchlist-panel';
-import { ReviewsPanel, myReviewsQueryOptions } from '@/components/reviews-panel';
+import { ReviewsPanel } from '@/components/reviews-panel';
 import { MemberOverview, myDashboardQueryOptions } from '@/components/member-overview';
 import { ProfilePanel, myProfileQueryOptions } from '@/components/profile-panel';
 import { pageHead } from '@/lib/metadata';
@@ -15,7 +15,6 @@ export const Route = createFileRoute('/_authenticated/painel')({
     const account = await loadPanelAccount('/painel');
     await Promise.all([
       context.queryClient.ensureQueryData(myWatchlistQueryOptions),
-      context.queryClient.ensureQueryData(myReviewsQueryOptions),
       context.queryClient.ensureQueryData(myProfileQueryOptions),
       context.queryClient.ensureQueryData(myDashboardQueryOptions),
     ]);
