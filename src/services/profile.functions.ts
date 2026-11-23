@@ -12,16 +12,17 @@ const profileInput = z.object({
 export const myProfile = createServerFn({ method: 'POST' }).middleware([clubAuth])
   .handler(async ({ context }) => {
     if (context.role !== 'admin') throw new Error('Somente administradores possuem perfil público.');
-    const [profile, genres, favorites] = await Promise.all([
+    const [profile, genres] = await Promise.all([
       context.supabase.from('profiles').select('id, display_name, avatar_url, about, rating_philosophy').eq('administrator_id', context.account.id).single(),
       context.supabase.from('genres').select('id, name').order('name'),
-      context.supabase.from('profile_favorite_genres').select('genre_id, profiles!inner(administrator_id)').eq('profiles.administrator_id', context.account.id),
     ]);
-    if (profile.error || !profile.data || genres.error || favorites.error) throw new Error('Não foi possível carregar o perfil.');
+    if (profile.error || !profile.data || genres.error) throw new Error('Não foi possível carregar o perfil.');
+    const { data: favorites, error: favoritesError } = await context.supabase.from('profile_favorite_genres').select('genre_id').eq('profile_id', profile.data.id);
+    if (favoritesError) throw new Error('Não foi possível carregar os gêneros favoritos.');
     return {
       ...profile.data,
       genres: genres.data ?? [],
-      favoriteGenreIds: (favorites.data ?? []).map(item => item.genre_id),
+      favoriteGenreIds: (favorites ?? []).map(item => item.genre_id),
     };
   });
 
