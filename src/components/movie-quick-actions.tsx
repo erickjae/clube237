@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ReviewFormDialog } from '@/components/review-form-dialog';
 import { addToWatchlist } from '@/services/watchlist.functions';
@@ -10,6 +11,8 @@ import { myWatchlist } from '@/services/watchlist.functions';
 type Movie = { id: string; title: string; poster_path: string | null; release_date: string; tmdb_id?: number };
 export function MovieQuickActions({ movie }: { movie: Movie }) {
   const client = useQueryClient();
+  const [authenticated, setAuthenticated] = useState(false);
+  useEffect(() => { let active = true; void supabase.auth.getSession().then(({data}) => { if(active) setAuthenticated(!!data.session); }); const {data: listener} = supabase.auth.onAuthStateChange((_event, session) => { if(active) setAuthenticated(!!session); }); return () => { active=false; listener.subscription.unsubscribe(); }; }, []);
   const add = useServerFn(addToWatchlist);
   const loadReviews = useServerFn(myReviews);
   const loadWatchlist = useServerFn(myWatchlist);
@@ -33,6 +36,7 @@ export function MovieQuickActions({ movie }: { movie: Movie }) {
     } catch (e) { setNotice(e instanceof Error ? e.message : 'Não foi possível concluir a ação.'); }
     finally { setBusy(false); }
   }
+  if (!authenticated) return null;
   return <div className="movie-quick-actions" onClick={e => e.stopPropagation()}>
     <Button size="sm" variant="outline" disabled={busy} onClick={() => void perform('add')}>Minha fila +</Button>
     <Button size="sm" disabled={busy || upcoming} onClick={() => void perform('review')}>{upcoming ? 'Em breve' : 'Avaliar'}</Button>
