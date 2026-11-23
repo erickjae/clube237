@@ -35,7 +35,7 @@ export function WatchlistPanel() {
 
   const queuedTmdbIds = new Set(entries.map((entry) => entry.movie.tmdbId));
   const reviewedMovieIds = new Set(reviews.map(review => review.movie.id));
-  const reviewedTitles = new Set(reviews.map(review => `${review.movie.title.toLocaleLowerCase('pt-BR')}|${review.movie.releaseDate}`));
+  const reviewedTmdbIds = new Set(reviews.map(review => review.movie.tmdbId));
 
   async function evaluateNow(movie: SearchResult) {
     setBusy(`review-${movie.tmdb_id}`); setError(''); setNotice('');
@@ -143,7 +143,7 @@ export function WatchlistPanel() {
               {results.map((movie) => {
                 const queued = queuedTmdbIds.has(movie.tmdb_id);
                 const adding = busy === `add-${movie.tmdb_id}`;
-                const alreadyReviewed = reviewedTitles.has(`${movie.title.toLocaleLowerCase('pt-BR')}|${movie.release_date}`);
+                const alreadyReviewed = reviewedTmdbIds.has(movie.tmdb_id);
                 return (
                   <article className="watchlist-result" key={movie.tmdb_id}>
                     {movie.poster_path
