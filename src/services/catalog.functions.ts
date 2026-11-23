@@ -1,6 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-import { isReleased } from '@/lib/club-rules';
 
 export const publicCatalog = createServerFn({ method: 'GET' }).handler(async () => {
   const { publicClient } = await import('./public-client.server');
@@ -24,5 +23,5 @@ export const publicCatalog = createServerFn({ method: 'GET' }).handler(async () 
 export const searchMovies = createServerFn({ method: 'POST' }).inputValidator(z.object({ query: z.string().trim().min(2).max(100) })).handler(async ({ data }) => {
   const { tmdb } = await import('./tmdb.server');
   const response = await tmdb('/search/movie', { query: data.query, language: 'pt-BR', include_adult: 'false' });
-  return response.results.filter(movie => isReleased(movie.release_date)).map(movie => ({ tmdb_id: movie.id, title: movie.title, poster_path: movie.poster_path, release_date: movie.release_date, overview: movie.overview }));
+  return response.results.filter(movie => movie.release_date && /^\d{4}-\d{2}-\d{2}$/.test(movie.release_date)).map(movie => ({ tmdb_id: movie.id, title: movie.title, poster_path: movie.poster_path, release_date: movie.release_date, overview: movie.overview }));
 });
