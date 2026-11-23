@@ -12,7 +12,10 @@ export const publicCatalog = createServerFn({ method: 'GET' }).handler(async () 
     db.from('watchlist').select('id, movie_id, administrator_id, added_at').order('added_at', { ascending: false }).limit(24),
   ]);
   if (movies.error || reviews.error || profiles.error || queue.error) throw new Error('O acervo não está disponível agora.');
-  return { movies: movies.data, reviews: reviews.data, profiles: profiles.data, queue: queue.data };
+  const { data: reviewedIds, error: reviewedError } = await db.from('reviews').select('movie_id');
+  if (reviewedError) throw new Error('Não foi possível carregar os filmes avaliados.');
+  const ids = new Set(reviewedIds.map((review) => review.movie_id));
+  return { movies: movies.data, reviewedMovies: movies.data.filter((movie) => ids.has(movie.id)), reviews: reviews.data, profiles: profiles.data, queue: queue.data };
 });
 
 export const searchMovies = createServerFn({ method: 'POST' }).inputValidator(z.object({ query: z.string().trim().min(2).max(100) })).handler(async ({ data }) => {
