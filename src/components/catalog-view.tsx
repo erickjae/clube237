@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { Film, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { MovieQuickActions } from '@/components/movie-quick-actions';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { publicFilmFilters, publicFilmsPage } from '@/services/catalog.functions';
@@ -47,7 +48,7 @@ export function CatalogView({ filters }: { filters: Filters }) {
     } }),
   });
   const total = search.data?.total ?? 0;
-  const pages = Math.max(1, Math.ceil(total / 48));
+  const pages = Math.max(1, Math.ceil(total / 50));
   const movies = search.data?.movies ?? [];
   return <>
     <form className="search-form film-filters" onSubmit={event => event.preventDefault()}>
@@ -77,10 +78,10 @@ export function CatalogView({ filters }: { filters: Filters }) {
       </label>}
       {(query || genreId || administratorId || recommend || sort !== 'best' || hideReviewed) && <Button variant="ghost" type="button" onClick={() => change(() => { setQuery(''); setGenreId(''); setAdministratorId(''); setRecommend(''); setSort('best'); setHideReviewed(false); })}>Limpar</Button>}
     </form>
-    <p className="text-sm text-muted-foreground" aria-live="polite">{search.isPending ? 'Carregando filmes...' : `${total} ${total === 1 ? 'filme encontrado' : 'filmes encontrados'} · 48 por página`}</p>
+    <p className="text-sm text-muted-foreground" aria-live="polite">{search.isPending ? 'Carregando filmes...' : `${total} ${total === 1 ? 'filme encontrado' : 'filmes encontrados'} · 50 por página`}</p>
     {search.isError ? <div role="alert"><p>Não foi possível carregar os filmes.</p><Button type="button" onClick={() => void search.refetch()}>Tentar novamente</Button></div> : null}
     {search.isSuccess && (movies.length ? <div className="film-grid">{movies.map(movie =>
-      <Link to="/filmes/$movieId" params={{ movieId: movie.id }} className="film-item" key={movie.id}>
+      <article className="film-item" key={movie.id}><Link to="/filmes/$movieId" params={{ movieId: movie.id }} className="catalog-film-link">
         <div className="film-poster-frame">
           {movie.poster_path
             ? <img className="film-poster" src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={`Pôster de ${movie.title}`} loading="lazy" />
@@ -91,7 +92,8 @@ export function CatalogView({ filters }: { filters: Filters }) {
         <p>{movie.release_date.slice(0, 4)}</p>
         {movie.genres.length > 0 && <p className="film-genres">{movie.genres.join(' · ')}</p>}
         <p className="film-review-count">{movie.review_count} {movie.review_count === 1 ? 'avaliação' : 'avaliações'}</p>
-      </Link>
+      </Link><MovieQuickActions movie={movie} />
+      </article>
     )}</div> : <EmptyClub title="Nenhum filme encontrado" description="Experimente mudar os filtros ou pesquisar outro título." />)}
     {search.isSuccess && pages > 1 && <nav aria-label="Paginação de filmes" className="flex flex-wrap items-center justify-center gap-3 mt-8">
       <Button type="button" variant="outline" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>Anterior</Button>

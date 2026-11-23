@@ -36,7 +36,7 @@ export function ReviewFormDialog({ entry, direct = false, onClose, onSaved }: Re
       setError('Escolha se você recomenda ou não o filme.');
       return;
     }
-    const parsed = reviewSchema.safeParse({ rating: Number(rating), recommend, comment });
+    const parsed = reviewSchema.safeParse({ rating: Number(rating.replace(',', '.')), recommend, comment });
     if (!parsed.success) {
       setError('Use nota de 0 a 10 com uma casa decimal e comentário de 2 a 1.000 caracteres.');
       return;
@@ -80,15 +80,13 @@ export function ReviewFormDialog({ entry, direct = false, onClose, onSaved }: Re
             <input
               id="review-rating"
               className="field review-rating-input"
-              type="number"
+              type="text"
               inputMode="decimal"
-              min={0}
-              max={10}
-              step={0.1}
+              pattern="(?:10(?:[,.]0)?|[0-9](?:[,.][0-9])?)"
               required
               placeholder="0,0 a 10,0"
               value={rating}
-              onChange={(event) => setRating(event.target.value)}
+              onChange={(event) => { const value = event.target.value; if (/^(?:10(?:[,.]0?)?|[0-9](?:[,.][0-9]?)?)?$/.test(value)) setRating(value); }}
             />
             <span className="review-field-note">De 0 a 10, com até uma casa decimal.</span>
 
