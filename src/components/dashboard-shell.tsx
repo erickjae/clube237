@@ -46,7 +46,7 @@ export function DashboardShell({ eyebrow, title, welcome, description, navigatio
   return (
     <div className="dashboard-shell">
       <header className="dashboard-header">
-        <Link to="/" aria-label="Clube237, página pública inicial"><Wordmark /></Link>
+        <Link to={typeof window !== "undefined" && window.location.pathname.startsWith("/admin") ? "/admin" : "/painel"} aria-label="Clube237, voltar ao painel"><Wordmark /></Link>
         <Button variant="outline" size="sm" onClick={signOut} disabled={busy}>
           <LogOut />{busy ? 'Saindo…' : 'Sair da conta'}
         </Button>
