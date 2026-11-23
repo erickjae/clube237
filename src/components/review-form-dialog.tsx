@@ -5,23 +5,25 @@ import { Film, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { reviewSchema } from '@/lib/club-rules';
-import { submitReview, submitDirectReview } from '@/services/reviews.functions';
+import { submitReview, submitDirectReview, updateMyReview } from '@/services/reviews.functions';
 import type { WatchlistEntry } from '@/components/watchlist-panel';
 
 type ReviewFormDialogProps = {
   entry: WatchlistEntry;
   direct?: boolean;
+  existingReview?: { id: string; rating: number; recommend: boolean; comment: string };
   onClose: () => void;
   onSaved: (title: string) => void;
 };
 
-export function ReviewFormDialog({ entry, direct = false, onClose, onSaved }: ReviewFormDialogProps) {
+export function ReviewFormDialog({ entry, direct = false, existingReview, onClose, onSaved }: ReviewFormDialogProps) {
   const queryClient = useQueryClient();
   const saveReview = useServerFn(submitReview);
   const saveDirect = useServerFn(submitDirectReview);
-  const [rating, setRating] = useState('');
-  const [recommend, setRecommend] = useState<boolean | null>(null);
-  const [comment, setComment] = useState('');
+  const saveExisting = useServerFn(updateMyReview);
+  const [rating, setRating] = useState(existingReview ? String(existingReview.rating).replace('.', ',') : '');
+  const [recommend, setRecommend] = useState<boolean | null>(existingReview?.recommend ?? null);
+  const [comment, setComment] = useState(existingReview?.comment ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -44,13 +46,16 @@ export function ReviewFormDialog({ entry, direct = false, onClose, onSaved }: Re
 
     setBusy(true);
     try {
-      if (direct) await saveDirect({ data: { ...parsed.data, movieId: entry.movie.id } });
+      if (existingReview) await saveExisting({ data: { ...parsed.data, reviewId: existingReview.id } });
+      else if (direct) await saveDirect({ data: { ...parsed.data, movieId: entry.movie.id } });
       else await saveReview({ data: { ...parsed.data, movieId: entry.movie.id } });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['my-watchlist'] }),
         queryClient.invalidateQueries({ queryKey: ['my-reviews'] }),
         queryClient.invalidateQueries({ queryKey: ['public-catalog'] }),
         queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['my-reviews-page'] }),
+        queryClient.invalidateQueries({ queryKey: ['films-page'] }),
       ]);
       onSaved(entry.movie.title);
     } catch (saveError) {
@@ -64,8 +69,8 @@ export function ReviewFormDialog({ entry, direct = false, onClose, onSaved }: Re
     <Dialog open onOpenChange={(open) => { if (!open && !busy) onClose(); }}>
       <DialogContent className="review-form-dialog">
         <DialogHeader>
-          <DialogTitle>Avaliar filme</DialogTitle>
-          <DialogDescription>Registre sua percepção. Se o filme estiver na fila, ele sairá dela automaticamente.</DialogDescription>
+          <DialogTitle>{existingReview ? 'Reavaliar filme' : 'Avaliar filme'}</DialogTitle>
+          <DialogDescription>{existingReview ? 'Atualize sua avaliação anterior sem criar uma nova.' : 'Registre sua percepção. Se o filme estiver na fila, ele sairá dela automaticamente.'}</DialogDescription>
         </DialogHeader>
         <div className="review-form-layout">
           <div className="review-movie-summary">
@@ -112,7 +117,7 @@ export function ReviewFormDialog({ entry, direct = false, onClose, onSaved }: Re
             {error && <p className="form-error" role="alert">{error}</p>}
             <DialogFooter>
               <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Cancelar</Button>
-              <Button type="submit" disabled={busy}><Star />{busy ? 'Salvando…' : 'Salvar avaliação'}</Button>
+              <Button type="submit" disabled={busy}><Star />{busy ? 'Salvando…' : existingReview ? 'Salvar alterações' : 'Salvar avaliação'}</Button>
             </DialogFooter>
           </form>
         </div>
