@@ -93,12 +93,15 @@ export const changePassword = createServerFn({ method: 'POST' }).middleware([clu
   return { success: true };
 });
 
-export const createAdministrator = createServerFn({ method: 'POST' }).middleware([clubAuth]).inputValidator(z.object({ username: usernameSchema, temporaryPassword: passwordSchema })).handler(async ({ data, context }) => {
+export const createAdministrator = createServerFn({ method: 'POST' }).middleware([clubAuth]).inputValidator(z.object({ username: usernameSchema, email: z.string().trim().email().max(254), temporaryPassword: passwordSchema })).handler(async ({ data, context }) => {
   if (!canManageAdministrators(context.role, context.account.must_change_password)) throw new Error('Somente o proprietário pode criar contas.');
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
-  const email = `${crypto.randomUUID()}@accounts.clube237.invalid`;
+  const email = data.email.trim().toLowerCase();
   const { data: created, error } = await supabaseAdmin.auth.admin.createUser({ email, password: data.temporaryPassword, email_confirm: true });
-  if (error || !created.user) throw new Error('Não foi possível criar a conta.');
+  if (error || !created.user) {
+    if (error?.message?.toLowerCase().includes('already registered') || error?.message?.toLowerCase().includes('already exists')) throw new Error('Este e-mail já está cadastrado.');
+    throw new Error('Não foi possível criar a conta. Verifique o e-mail informado.');
+  }
   const { error: accountError } = await supabaseAdmin.from('administrators').insert({ auth_user_id: created.user.id, username: data.username });
   if (accountError) { await supabaseAdmin.auth.admin.deleteUser(created.user.id); throw new Error('Usuário já utilizado ou conta inválida.'); }
   const { error: roleError } = await supabaseAdmin.from('user_roles').insert({ user_id: created.user.id, role: 'admin' });
