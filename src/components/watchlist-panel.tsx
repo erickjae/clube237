@@ -55,6 +55,7 @@ export function WatchlistPanel() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: myWatchlistQueryOptions.queryKey }),
       queryClient.invalidateQueries({ queryKey: ['public-catalog'] }),
+        queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
     ]);
   }
 
