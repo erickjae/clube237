@@ -1,13 +1,13 @@
 import { z } from 'zod';
 const movie = z.object({ id: z.number(), title: z.string(), original_title: z.string().default(''), overview: z.string().default(''), poster_path: z.string().nullable().default(null), backdrop_path: z.string().nullable().default(null), release_date: z.string().default(''), runtime: z.number().nullable().optional(), genres: z.array(z.object({ id: z.number(), name: z.string() })).optional() });
 export async function tmdb(path: string, params: Record<string, string>) {
-  const response = await request(path, params);
+  const response = await tmdbRequest(path, params);
   return z.object({ results: z.array(movie) }).parse(response);
 }
 export async function tmdbMovie(id: number, language: string) {
   return movie.parse(await request(`/movie/${id}`, { language }));
 }
-async function request(path: string, params: Record<string, string>) {
+export async function tmdbRequest(path: string, params: Record<string, string>) {
   const token = process.env['TMDB_API_TOKEN'];
   if (!token) throw new Error('A pesquisa aguarda a configuração do TMDB.');
   const url = new URL(`https://api.themoviedb.org/3${path}`);
