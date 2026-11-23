@@ -122,3 +122,29 @@ export const manageAdministrator = createServerFn({ method: 'POST' }).middleware
   if (error) throw new Error('Permissões atualizadas; a atualização de acesso precisa ser repetida.');
   return { success: true };
 });
+
+
+export const requestPasswordRecovery = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({ email: z.string().trim().email().max(254) }))
+  .handler(async ({ data }) => {
+    const { publicClient } = await import('./public-client.server');
+    // The same message is returned for registered and unregistered addresses.
+    const { error } = await publicClient().auth.resetPasswordForEmail(data.email, {
+      redirectTo: 'https://clube237.vercel.app/redefinir-senha',
+    });
+    if (error && error.status === 429) throw new Error('Muitas tentativas. Aguarde alguns minutos.');
+    if (error) throw new Error('Não foi possível enviar o e-mail agora. Tente novamente.');
+    return { success: true };
+  });
+
+export const completePasswordRecovery = createServerFn({ method: 'POST' })
+  .middleware([clubAuth])
+  .inputValidator(z.object({}))
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const { error } = await supabaseAdmin.from('administrators')
+      .update({ must_change_password: false })
+      .eq('id', context.account.id);
+    if (error) throw new Error('Senha atualizada, mas não foi possível liberar a conta. Contate o proprietário.');
+    return { success: true };
+  });
