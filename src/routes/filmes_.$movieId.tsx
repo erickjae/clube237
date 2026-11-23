@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { movieWatchProviders } from '@/services/watch-providers.functions';
 import { Film, Star, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { MovieQuickActions } from '@/components/movie-quick-actions';
 import { ClubShell } from '@/components/club-shell';
 import { catalogOptions } from './index';
 import { pageHead } from '@/lib/metadata';
@@ -36,7 +37,7 @@ function MovieDetails() {
     {!movie ? <div className="empty-club"><h1>Filme não encontrado</h1><p>Não foi possível localizar as informações deste filme.</p></div> :
       <><div className="movie-detail-heading">
         {movie.poster_path ? <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={`Pôster de ${movie.title}`} /> : <div className="movie-detail-placeholder"><Film /></div>}
-        <div><p className="eyebrow">Clube237 · Detalhes do filme</p><div className="movie-title-row"><h1>{movie.title}</h1>{average !== null && <span className="movie-detail-rating" aria-label={`Nota média do Clube237: ${average.toFixed(1)} de 10`}><Star size={20} fill="currentColor" />{average.toFixed(1).replace('.', ',')}</span>}</div><p>{movie.release_date.slice(0,4)}</p><h2 className="movie-synopsis-label">Sinopse</h2><p>{movie.overview || 'Sinopse ainda não disponível.'}</p>
+        <div><p className="eyebrow">Clube237 · Detalhes do filme</p><div className="movie-title-row"><h1>{movie.title}</h1>{average !== null && <span className="movie-detail-rating" aria-label={`Nota média do Clube237: ${average.toFixed(1)} de 10`}><Star size={20} fill="currentColor" />{average.toFixed(1).replace('.', ',')}</span>}</div><p>{movie.release_date.slice(0,4)}</p><MovieQuickActions movie={movie} /><h2 className="movie-synopsis-label">Sinopse</h2><p>{movie.overview || 'Sinopse ainda não disponível.'}</p>
 
         {reviews.length > 0 && <p>{reviews.length} {reviews.length === 1 ? 'avaliação publicada' : 'avaliações publicadas'}</p>}</div>
       </div>
