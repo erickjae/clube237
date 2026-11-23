@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import { Film } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -18,13 +19,13 @@ export function CatalogView({ catalog }: { catalog: Catalog }) {
       {query && <Button variant="ghost" type="button" onClick={() => setQuery('')}>Limpar</Button>}
     </form>
     {movies.length ? <div className="film-grid">{movies.map(movie =>
-      <article className="film-item" key={movie.id}>
+      <Link to="/filmes/$movieId" params={{ movieId: movie.id }} className="film-item" key={movie.id}>
         {movie.poster_path
           ? <img className="film-poster" src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={`Pôster de ${movie.title}`} loading="lazy" />
           : <div className="film-poster flex items-center justify-center"><Film /></div>}
         <h3>{movie.title}</h3>
         <p>{movie.release_date.slice(0, 4)}</p>
-      </article>
+      </Link>
     )}</div> : <EmptyClub title={query ? 'Nenhum filme avaliado encontrado' : 'O acervo está começando'} description={query ? 'Tente outro título entre os filmes já avaliados pelo clube.' : 'Os filmes aparecerão aqui quando receberem avaliações dos membros.'} />}
   </>;
 }
