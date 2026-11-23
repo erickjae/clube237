@@ -89,6 +89,7 @@ export function CatalogView({ filters }: { filters: Filters }) {
         </div>
         <h3>{movie.title}</h3>
         <p>{movie.release_date.slice(0, 4)}</p>
+        {movie.genres.length > 0 && <p className="film-genres">{movie.genres.join(' · ')}</p>}
         <p className="film-review-count">{movie.review_count} {movie.review_count === 1 ? 'avaliação' : 'avaliações'}</p>
       </Link>
     )}</div> : <EmptyClub title="Nenhum filme encontrado" description="Experimente mudar os filtros ou pesquisar outro título." />)}
