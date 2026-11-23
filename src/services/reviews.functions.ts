@@ -49,6 +49,8 @@ export const submitReview = createServerFn({ method: 'POST' })
   .handler(async ({ data, context }) => {
     if (context.account.must_change_password) throw new Error('Altere sua senha provisória primeiro.');
 
+    const { data: movie } = await context.supabase.from('movies').select('release_date').eq('id', data.movieId).maybeSingle();
+    if (movie && movie.release_date > new Date().toISOString().slice(0, 10)) throw new Error('Este filme ainda não estreou. Você poderá avaliá-lo após o lançamento.');
     const { data: saved, error } = await context.supabase.rpc('submit_club_review', {
       p_movie_id: data.movieId,
       p_rating: data.rating,
@@ -65,6 +67,8 @@ export const submitDirectReview = createServerFn({ method: 'POST' })
   .inputValidator(reviewSchema.extend({ movieId: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     if (context.account.must_change_password) throw new Error('Altere sua senha provisória primeiro.');
+    const { data: movie } = await context.supabase.from('movies').select('release_date').eq('id', data.movieId).maybeSingle();
+    if (movie && movie.release_date > new Date().toISOString().slice(0, 10)) throw new Error('Este filme ainda não estreou. Você poderá avaliá-lo após o lançamento.');
     const { data: saved, error } = await context.supabase.rpc('submit_direct_club_review', {
       p_movie_id: data.movieId,
       p_rating: data.rating,
