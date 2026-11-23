@@ -5,7 +5,7 @@ import { ClubShell } from '@/components/club-shell';
 import { catalogOptions } from './index';
 import { pageHead } from '@/lib/metadata';
 
-export const Route = createFileRoute('/filmes/$movieId')({
+export const Route = createFileRoute('/filmes_/$movieId')({
   head: () => pageHead('Avaliações do filme', 'As percepções dos membros do Clube237.'),
   loader: ({ context }) => context.queryClient.ensureQueryData(catalogOptions),
   component: MovieDetails,
@@ -15,7 +15,7 @@ function MovieDetails() {
   const { movieId } = Route.useParams();
   const { data } = useSuspenseQuery(catalogOptions);
   const movie = data.reviewedMovies.find(item => item.id === movieId);
-  const reviews = data.reviews.filter(item => item.movie_id === movieId);
+  const reviews = data.reviews.filter(item => item.movie_id === movieId).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   return <ClubShell><div className="container-club movie-detail">
     <Link to="/filmes" className="movie-back">← Voltar aos filmes</Link>
     {!movie || !reviews.length ? <div className="empty-club"><h1>Filme sem avaliações publicadas</h1><p>Este filme ainda não está no catálogo avaliado do clube.</p></div> :
@@ -25,7 +25,7 @@ function MovieDetails() {
       </div><section className="movie-reviews"><h2>Percepções dos membros</h2>
       {reviews.map(review => { const author = data.profiles.find(p => p.administrator_id === review.administrator_id); return <article className="movie-review" key={review.id}>
         <div className="review-card-tags"><span>{author?.display_name ?? 'Membro do clube'}</span><span><Star size={14} /> {Number(review.rating).toFixed(1)}</span><span>{review.recommend ? <ThumbsUp size={14} /> : <ThumbsDown size={14} />}{review.recommend ? 'Recomenda' : 'Não recomenda'}</span></div>
-        <p>{review.comment}</p>
+        <p>{review.comment}</p><small className="text-muted-foreground">{new Date(review.created_at).toLocaleDateString("pt-BR")}</small>
       </article>; })}</section></>}
   </div></ClubShell>;
 }

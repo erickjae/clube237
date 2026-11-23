@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FilaRouteImport } from './routes/fila'
 import { Route as FilmesRouteImport } from './routes/filmes'
+import { Route as FilmesMovieIdRouteImport } from './routes/filmes_.$movieId'
 import { Route as MembrosRouteImport } from './routes/membros'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
@@ -42,6 +43,11 @@ const FilmesRoute = FilmesRouteImport.update({
   path: '/filmes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FilmesMovieIdRoute = FilmesMovieIdRouteImport.update({
+  id: '/filmes_/$movieId',
+  path: '/filmes/$movieId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MembrosRoute = MembrosRouteImport.update({
   id: '/membros',
   path: '/membros',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
+  '/filmes/$movieId': typeof FilmesMovieIdRoute
   '/membros': typeof MembrosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/painel': typeof AuthenticatedPainelRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
+  '/filmes/$movieId': typeof FilmesMovieIdRoute
   '/membros': typeof MembrosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/painel': typeof AuthenticatedPainelRoute
@@ -85,14 +93,15 @@ export interface FileRoutesById {
   '/filmes': typeof FilmesRoute
   '/membros': typeof MembrosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/filmes_/$movieId': typeof FilmesMovieIdRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/fila' | '/filmes' | '/membros' | '/admin' | '/painel'
+    '/' | '/auth' | '/fila' | '/filmes' | '/filmes/$movieId' | '/membros' | '/admin' | '/painel'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/fila' | '/filmes' | '/membros' | '/admin' | '/painel'
+  to: '/' | '/auth' | '/fila' | '/filmes' | '/filmes/$movieId' | '/membros' | '/admin' | '/painel'
   id:
     | '__root__'
     | '/'
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/fila'
     | '/filmes'
+    | '/filmes_/$movieId'
     | '/membros'
     | '/_authenticated/admin'
     | '/_authenticated/painel'
@@ -111,6 +121,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   FilaRoute: typeof FilaRoute
   FilmesRoute: typeof FilmesRoute
+  FilmesMovieIdRoute: typeof FilmesMovieIdRoute
   MembrosRoute: typeof MembrosRoute
 }
 
@@ -149,6 +160,13 @@ declare module '@tanstack/react-router' {
       path: '/filmes'
       fullPath: '/filmes'
       preLoaderRoute: typeof FilmesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/filmes_/$movieId': {
+      id: '/filmes_/$movieId'
+      path: '/filmes/$movieId'
+      fullPath: '/filmes/$movieId'
+      preLoaderRoute: typeof FilmesMovieIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/membros': {
@@ -194,6 +212,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   FilaRoute: FilaRoute,
   FilmesRoute: FilmesRoute,
+  FilmesMovieIdRoute: FilmesMovieIdRoute,
   MembrosRoute: MembrosRoute,
 }
 export const routeTree = rootRouteImport
