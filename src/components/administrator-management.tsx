@@ -40,6 +40,7 @@ export function AdministratorManagement() {
   const [resetTarget, setResetTarget] = useState<Administrator | null>(null);
   const [statusTarget, setStatusTarget] = useState<{ administrator: Administrator; action: StatusAction } | null>(null);
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [temporaryPassword, setTemporaryPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [busy, setBusy] = useState('');
@@ -48,6 +49,7 @@ export function AdministratorManagement() {
 
   function clearCredentials() {
     setUsername('');
+    setEmail('');
     setTemporaryPassword('');
     setConfirmation('');
     setError('');
@@ -78,7 +80,7 @@ export function AdministratorManagement() {
     }
     setBusy('create');
     try {
-      const result = await createAccount({ data: { username, temporaryPassword } });
+      const result = await createAccount({ data: { username, email, temporaryPassword } });
       setCreateOpen(false);
       clearCredentials();
       setNotice(`Conta de ${result.username} criada. A senha provisória deverá ser trocada no primeiro acesso.`);
@@ -183,6 +185,9 @@ export function AdministratorManagement() {
           <form className="account-form" onSubmit={submitCreate}>
             <label>Nome de usuário
               <input className="field" autoComplete="off" minLength={3} maxLength={32} pattern="[A-Za-z0-9_]+" required value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Ex.: Nome237" />
+            </label>
+            <label>E-mail
+              <input className="field" type="email" autoComplete="off" maxLength={254} required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="nome@exemplo.com" />
             </label>
             <label>Senha provisória
               <input className="field" type="password" autoComplete="new-password" minLength={8} maxLength={128} required value={temporaryPassword} onChange={(event) => setTemporaryPassword(event.target.value)} />
