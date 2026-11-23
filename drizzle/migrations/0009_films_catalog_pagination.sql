@@ -29,7 +29,7 @@ begin
       rated.review_count, rated.average_rating
     from public.movies m
     join rated on rated.movie_id = m.id
-    where (trim(p_search) = '' or m.title ilike '%' || replace(replace(replace(trim(p_search),'\\','\\\\'),'%','\\%'),'_','\\_') || '%' escape '\\')
+    where (trim(p_search) = '' or strpos(lower(m.title), lower(trim(p_search))) > 0)
       and (p_genre_id is null or exists (
         select 1 from public.movie_genres mg where mg.movie_id = m.id and mg.genre_id = p_genre_id
       ))
@@ -42,7 +42,7 @@ begin
       and (not p_hide_reviewed or auth.uid() is null or not exists (
         select 1 from public.reviews mine
         join public.administrators a on a.id = mine.administrator_id
-        where mine.movie_id = m.id and a.auth_user_id = auth.uid() and a.status = 'active'
+        where mine.movie_id = m.id and a.auth_user_id = auth.uid()
       ))
   ), page_rows as (
     select * from matching
