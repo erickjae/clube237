@@ -571,3 +571,14 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
 .movie-quick-actions button { flex:1 1 auto; min-width:0; font-size:12px; }
 .movie-quick-notice { flex-basis:100%; font-size:12px; line-height:1.5; color:var(--muted-foreground); overflow-wrap:anywhere; }
 @media(max-width:600px) { .movie-quick-actions { gap:6px; } .movie-quick-actions button { padding-inline:8px; font-size:11px; } }
+
+/* PR #21 — post-release catalog alignment and checkbox */
+.film-hide-reviewed { grid-column:1 / -1 !important; display:inline-flex; align-items:center; justify-self:start; justify-content:flex-start; gap:10px; width:max-content; max-width:100%; font-size:13px; line-height:1.5; cursor:pointer; }
+.film-hide-reviewed input[type="checkbox"] { appearance:auto; flex:none; width:17px; height:17px; min-width:17px; margin:0; accent-color:var(--primary); }
+.film-item:has(.catalog-film-link) { display:flex; flex-direction:column; min-width:0; }
+.catalog-film-link { display:flex; flex-direction:column; flex:1; }
+.catalog-film-meta { display:flex; flex-direction:column; flex:1; min-width:0; }
+.catalog-film-meta h3 { overflow-wrap:anywhere; line-height:1.45; }
+.catalog-film-meta .film-review-count { margin-top:auto; padding-top:8px; }
+.film-item:has(.catalog-film-link) > .movie-quick-actions { margin-top:12px; }
+@media(max-width:600px) { .film-hide-reviewed { width:100%; } .catalog-film-meta h3 { overflow-wrap:anywhere; } }
