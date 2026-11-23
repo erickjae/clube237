@@ -506,3 +506,13 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
 .member-review-item h3 { font-size:17px;margin-bottom:10px; }
 .member-review-item p { font-size:12px;line-height:1.65;margin-top:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap; }
 @media(max-width:760px) { .member-detail-header { align-items:flex-start;gap:16px; }.member-detail-avatar { width:84px;height:84px;flex-basis:84px; }.member-detail-header h1 { font-size:30px; }.member-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }.member-stats > div { padding:14px; } }
+
+/* Film catalog ranking, poster rating and filters */
+.film-filters { display:flex;align-items:center;flex-wrap:wrap;gap:12px; }
+.film-filters input { flex:2 1 240px;min-width:0; }
+.film-filters select { flex:1 1 170px;min-width:150px;appearance:auto; }
+.film-poster-frame { position:relative; }
+.film-rating-badge { position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border-radius:7px;background:rgba(18,18,20,.9);color:#facc15;font-size:14px;font-weight:800;line-height:1;box-shadow:0 2px 10px rgba(0,0,0,.4); }
+.film-genres { font-size:11px;line-height:1.6;color:var(--muted-foreground);margin-top:6px; }
+.film-review-count { font-size:10px;color:var(--muted-foreground);margin-top:5px; }
+@media(max-width:760px) { .film-filters { flex-direction:column;align-items:stretch; }.film-filters input,.film-filters select { flex:auto;width:100%;min-width:0; }.film-rating-badge { top:7px;right:7px;padding:6px 8px;font-size:12px; } }
