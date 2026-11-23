@@ -549,3 +549,19 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
 .movie-provider-link { display:inline-block;margin-top:20px;color:var(--primary);font-size:13px;text-decoration:underline; }
 .movie-watch-providers .movie-provider-credit { font-size:10px;color:var(--muted-foreground);margin-top:20px; }
 @media(max-width:760px) { .movie-detail-rating { font-size:16px;padding:7px 10px; }.movie-watch-providers { padding:14px; }.movie-provider-list { gap:10px; } }
+
+/* PR #20 — feedback dos stakeholders: public filters, queue and responsive layout */
+.film-filters { max-width:none; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; align-items:stretch; }
+.film-filters > input:first-child { grid-column:span 2; }
+.film-filters > .field { min-width:0; width:100%; height:46px; padding:10px 12px; font-size:13px; }
+.film-filters > select { text-overflow:ellipsis; }
+.film-filters > label { grid-column:span 3; min-width:0; }
+.film-filters > button { justify-self:end; }
+.queue-film { display:flex; flex-direction:column; min-width:0; }
+.queue-film-link { display:flex; flex-direction:column; flex:1; min-width:0; }
+.queue-film-link h3 { overflow-wrap:anywhere; line-height:1.45; min-height:3.8em; }
+.queue-film-detail { margin-top:auto; padding-top:10px; }
+.queue-interested { margin-top:16px; min-width:0; }
+.queue-member { min-width:0; overflow-wrap:anywhere; }
+@media(max-width:1000px) { .film-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } .film-filters > input:first-child { grid-column:span 2; } }
+@media(max-width:600px) { .film-filters { grid-template-columns:minmax(0,1fr); } .film-filters > input:first-child,.film-filters > label { grid-column:auto; } .film-filters > button { justify-self:stretch; } .film-grid { gap:14px; } .queue-film-link h3 { min-height:0; } }
