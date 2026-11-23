@@ -111,7 +111,7 @@ export function WatchlistPanel() {
           <p className="dashboard-section-number">Sua próxima sessão</p>
           <h2 id="watchlist-title">Minha fila <span>{entries.length}</span></h2>
         </div>
-        <p>Busque um filme já lançado e guarde aqui o que você quer assistir.</p>
+        <p>Busque filmes lançados ou futuros e guarde o que você quer assistir.</p>
       </div>
 
       <form className="search-form watchlist-search" onSubmit={submitSearch}>
@@ -142,6 +142,7 @@ export function WatchlistPanel() {
             <div className="watchlist-result-grid">
               {results.map((movie) => {
                 const queued = queuedTmdbIds.has(movie.tmdb_id);
+                const upcoming = movie.release_date > new Date().toISOString().slice(0, 10);
                 const adding = busy === `add-${movie.tmdb_id}`;
                 const alreadyReviewed = reviewedTmdbIds.has(movie.tmdb_id);
                 return (
@@ -151,8 +152,8 @@ export function WatchlistPanel() {
                       : <div className="film-poster watchlist-poster-empty"><Film aria-hidden="true" /></div>}
                     <div className="watchlist-result-info">
                       <h4>{movie.title}</h4>
-                      <p>{movie.release_date.slice(0, 4)}</p>
-                      <Button variant="default" size="sm" disabled={busy !== '' || alreadyReviewed} onClick={() => evaluateNow(movie)}><Star />{busy === `review-${movie.tmdb_id}` ? 'Abrindo…' : alreadyReviewed ? 'Já avaliado' : 'Avaliar agora'}</Button>
+                      <p>{upcoming ? `Em breve · estreia prevista: ${new Date(`${movie.release_date}T12:00:00`).toLocaleDateString('pt-BR')}` : movie.release_date.slice(0, 4)}</p>
+                      <Button variant="default" size="sm" disabled={busy !== '' || alreadyReviewed || upcoming} onClick={() => evaluateNow(movie)}><Star />{busy === `review-${movie.tmdb_id}` ? 'Abrindo…' : alreadyReviewed ? 'Já avaliado' : upcoming ? 'Aguarde a estreia' : 'Avaliar agora'}</Button>
                       <Button variant={queued ? 'ghost' : 'outline'} size="sm" disabled={busy !== '' || queued || alreadyReviewed} onClick={() => addMovie(movie)}>
                         <ListPlus />{adding ? 'Adicionando…' : queued ? 'Já está na fila' : 'Adicionar à fila'}
                       </Button>
@@ -161,7 +162,7 @@ export function WatchlistPanel() {
                 );
               })}
             </div>
-          ) : <EmptyClub title="Nenhum filme encontrado" description="Tente outro título. Somente filmes já lançados aparecem nos resultados." />}
+          ) : <EmptyClub title="Nenhum filme encontrado" description="Tente outro título. Pesquise outro título. Filmes com data de estreia informada pelo TMDB aparecem nos resultados." />}
         </div>
       )}
 
@@ -179,11 +180,11 @@ export function WatchlistPanel() {
                   : <div className="watchlist-row-poster watchlist-poster-empty"><Film aria-hidden="true" /></div>}
                 <div className="watchlist-row-title">
                   <h4>{entry.movie.title}</h4>
-                  <p>{entry.movie.releaseDate.slice(0, 4)}</p>
+                  <p>{entry.movie.releaseDate > new Date().toISOString().slice(0, 10) ? `Em breve · ${new Date(`${entry.movie.releaseDate}T12:00:00`).toLocaleDateString('pt-BR')}` : entry.movie.releaseDate.slice(0, 4)}</p>
                 </div>
                 <div className="watchlist-row-actions">
-                  <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => { setError(''); setNotice(''); setReviewTarget({ entry, direct: false }); }}>
-                    <Star />Avaliar filme
+                  <Button variant="outline" size="sm" disabled={busy !== '' || entry.movie.releaseDate > new Date().toISOString().slice(0, 10)} onClick={() => { setError(''); setNotice(''); setReviewTarget({ entry, direct: false }); }}>
+                    <Star />{entry.movie.releaseDate > new Date().toISOString().slice(0, 10) ? 'Aguarde a estreia' : 'Avaliar filme'}
                   </Button>
                   <Button variant="ghost" size="sm" disabled={busy !== ''} onClick={() => removeMovie(entry.id, entry.movie.title)}>
                     <Trash2 />{busy === `remove-${entry.id}` ? 'Removendo…' : 'Remover'}
