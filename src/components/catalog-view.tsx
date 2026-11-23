@@ -72,7 +72,7 @@ export function CatalogView({ filters }: { filters: Filters }) {
         <option value="most">Mais avaliações</option>
         <option value="title">Título (A–Z)</option>
       </select>
-      {accessToken && <label className="flex items-center gap-2 text-sm">
+      {accessToken && <label className="film-hide-reviewed">
         <input type="checkbox" checked={hideReviewed} onChange={event => change(() => setHideReviewed(event.target.checked))} />
         Ocultar filmes que já avaliei
       </label>}
@@ -88,10 +88,10 @@ export function CatalogView({ filters }: { filters: Filters }) {
             : <div className="film-poster flex items-center justify-center"><Film /></div>}
           <span className="film-rating-badge" aria-label={`Média ${Number(movie.average_rating).toFixed(1)} de 10, com ${movie.review_count} avaliações`}><Star size={15} fill="currentColor" />{Number(movie.average_rating).toFixed(1).replace('.', ',')}</span>
         </div>
-        <h3>{movie.title}</h3>
+        <div className="catalog-film-meta"><h3>{movie.title}</h3>
         <p>{movie.release_date.slice(0, 4)}</p>
         {movie.genres.length > 0 && <p className="film-genres">{movie.genres.join(' · ')}</p>}
-        <p className="film-review-count">{movie.review_count} {movie.review_count === 1 ? 'avaliação' : 'avaliações'}</p>
+        <p className="film-review-count">{movie.review_count} {movie.review_count === 1 ? 'avaliação' : 'avaliações'}</p></div>
       </Link><MovieQuickActions movie={movie} />
       </article>
     )}</div> : <EmptyClub title="Nenhum filme encontrado" description="Experimente mudar os filtros ou pesquisar outro título." />)}
