@@ -91,7 +91,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/fila': typeof FilaRoute
   '/filmes': typeof FilmesRoute
-  '/filmes/$movieId': typeof FilmesMovieIdRoute
   '/membros': typeof MembrosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/filmes_/$movieId': typeof FilmesMovieIdRoute
