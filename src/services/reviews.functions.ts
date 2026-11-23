@@ -18,7 +18,7 @@ export const myReviews = createServerFn({ method: 'GET' })
 
     const { data: movies, error: moviesError } = await context.supabase
       .from('movies')
-      .select('id, title, poster_path, release_date')
+      .select('id, tmdb_id, title, poster_path, release_date')
       .in('id', reviews.map((review) => review.movie_id));
 
     if (moviesError) throw new Error('Não foi possível carregar os filmes avaliados.');
@@ -34,6 +34,7 @@ export const myReviews = createServerFn({ method: 'GET' })
         createdAt: review.created_at,
         movie: {
           id: movie.id,
+          tmdbId: movie.tmdb_id,
           title: movie.title,
           posterPath: movie.poster_path,
           releaseDate: movie.release_date,
