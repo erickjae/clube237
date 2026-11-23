@@ -533,3 +533,19 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
 .member-overview-track span { display:block;height:100%;background:var(--primary);border-radius:20px; }
 .watchlist-result-info button + button { margin-top:8px; }
 @media(max-width:760px) { .member-overview-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.member-overview-stat { padding:15px; }.member-overview-stat strong { font-size:27px; }.member-overview-genres { padding:16px; } }
+
+/* Movie detail: club rating and Brazilian viewing availability */
+.movie-title-row { display:flex;align-items:center;flex-wrap:wrap;gap:12px 18px; }
+.movie-title-row h1 { margin:10px 0; }
+.movie-detail-rating { display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:8px;background:rgba(18,18,20,.94);color:#facc15;font-size:19px;font-weight:800;white-space:nowrap; }
+.movie-watch-providers { margin-top:28px;padding:20px;border:1px solid var(--border);border-radius:10px;background:var(--card); }
+.movie-watch-providers h2 { font-size:18px;font-weight:750; }
+.movie-watch-providers > p { margin-top:8px; }
+.movie-provider-group { margin-top:20px; }
+.movie-provider-group h3 { font-size:13px;font-weight:700;margin-bottom:12px; }
+.movie-provider-list { display:flex;flex-wrap:wrap;gap:14px; }
+.movie-provider { display:flex;flex-direction:column;align-items:center;gap:7px;width:80px;text-align:center;font-size:11px;line-height:1.4; }
+.movie-provider img { width:48px;height:48px;border-radius:10px;object-fit:cover; }
+.movie-provider-link { display:inline-block;margin-top:20px;color:var(--primary);font-size:13px;text-decoration:underline; }
+.movie-watch-providers .movie-provider-credit { font-size:10px;color:var(--muted-foreground);margin-top:20px; }
+@media(max-width:760px) { .movie-detail-rating { font-size:16px;padding:7px 10px; }.movie-watch-providers { padding:14px; }.movie-provider-list { gap:10px; } }
