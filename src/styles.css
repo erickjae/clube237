@@ -348,4 +348,69 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
   .watchlist-row-poster { width: 54px; }
   .watchlist-row > button { grid-column: 2; justify-self: start; padding-left: 0; }
 }
+.watchlist-row-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.watchlist-row-actions button:last-child { color: var(--muted-foreground); }
+.watchlist-row-actions button:last-child:hover { color: var(--destructive); }
+.review-form-dialog { max-width: 760px; border-color: var(--border); }
+.review-form-dialog [data-radix-dialog-title], .review-detail-dialog [data-radix-dialog-title] { font-family: var(--font-display); font-size: 30px; font-weight: 500; }
+.review-form-layout { display: grid; grid-template-columns: 180px minmax(0,1fr); gap: 28px; margin-top: 8px; }
+.review-movie-summary > img, .review-summary-poster-empty { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: var(--muted); }
+.review-summary-poster-empty { display: grid; place-items: center; color: var(--muted-foreground); }
+.review-movie-summary h3 { font-size: 13px; line-height: 1.5; margin-top: 12px; }
+.review-movie-summary p { color: var(--muted-foreground); font-size: 11px; margin-top: 4px; }
+.review-form { display: grid; gap: 10px; }
+.review-form > label, .review-recommendation legend { font-size: 12px; font-weight: 500; }
+.review-rating-input { max-width: 150px; }
+.review-field-note { color: var(--muted-foreground); font-size: 10px; line-height: 1.5; }
+.review-recommendation { display: flex; flex-wrap: wrap; gap: 12px 20px; border: 0; padding: 14px 0; margin: 6px 0; }
+.review-recommendation legend { margin-bottom: 12px; }
+.review-recommendation label { display: inline-flex; align-items: center; gap: 8px; color: var(--muted-foreground); font-size: 12px; }
+.review-recommendation input { accent-color: var(--primary); }
+.review-comment-input { resize: vertical; min-height: 130px; line-height: 1.7; }
+.review-form [data-slot='dialog-footer'] { margin-top: 12px; }
+.reviews-section { max-width: 900px; margin-top: 38px; }
+.reviews-list { display: grid; }
+.review-card { display: grid; grid-template-columns: 110px minmax(0,1fr); gap: 26px; padding: 28px 0; border-bottom: 1px solid var(--border); }
+.review-card-poster { width: 110px; aspect-ratio: 2/3; object-fit: cover; background: var(--muted); }
+.review-card-content { min-width: 0; }
+.review-card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
+.review-card-heading h3 { font-family: var(--font-display); font-size: 25px; font-weight: 500; line-height: 1.15; }
+.review-card-heading p { color: var(--muted-foreground); font-size: 11px; margin-top: 5px; }
+.review-card-heading > strong { display: inline-flex; align-items: center; gap: 6px; color: var(--primary); font-family: var(--font-display); font-size: 30px; font-weight: 500; white-space: nowrap; }
+.review-card-heading > strong svg { width: 17px; height: 17px; }
+.review-recommendation-status { display: flex; align-items: center; gap: 7px; color: var(--muted-foreground); font-size: 11px; margin-top: 16px; }
+.review-recommendation-status.is-positive { color: var(--foreground); }
+.review-recommendation-status svg { width: 14px; height: 14px; }
+.review-card-comment { color: var(--foreground); font-size: 13px; line-height: 1.8; margin-top: 14px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.review-card-date { color: var(--muted-foreground); font-size: 10px; margin-top: 12px; }
+.review-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.review-card-actions button:last-child { color: var(--muted-foreground); }
+.review-card-actions button:last-child:hover { color: var(--destructive); }
+.review-detail-dialog { max-width: 680px; border-color: var(--border); }
+.review-detail-content { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 26px; margin-top: 10px; }
+.review-detail-content > img { width: 150px; aspect-ratio: 2/3; object-fit: cover; }
+.review-detail-score { display: flex; align-items: center; gap: 8px; color: var(--primary); font-family: var(--font-display); font-size: 44px; }
+.review-detail-score svg { width: 22px; height: 22px; }
+.review-detail-score span { color: var(--muted-foreground); font-size: 18px; }
+.review-detail-comment { font-size: 13px; line-height: 1.9; margin-top: 20px; overflow-wrap: anywhere; white-space: pre-wrap; }
+@media(max-width: 760px) {
+  .watchlist-row > .watchlist-row-actions { grid-column: 2; justify-content: flex-start; }
+  .watchlist-row-actions { align-items: flex-start; }
+  .watchlist-row-actions button { padding-inline: 10px; }
+  .review-form-dialog { max-width: calc(100vw - 28px); max-height: calc(100svh - 28px); overflow-y: auto; padding: 22px; }
+  .review-form-layout { grid-template-columns: 84px minmax(0,1fr); gap: 18px; }
+  .review-movie-summary h3 { font-size: 11px; }
+  .review-form [data-slot='dialog-footer'] { flex-direction: column-reverse; }
+  .review-form [data-slot='dialog-footer'] button { width: 100%; }
+  .review-card { grid-template-columns: 78px minmax(0,1fr); gap: 16px; }
+  .review-card-poster { width: 78px; }
+  .review-card-heading { flex-direction: column; gap: 10px; }
+  .review-card-heading h3 { font-size: 22px; }
+  .review-card-heading > strong { font-size: 25px; }
+  .review-card-actions { flex-direction: column; align-items: stretch; }
+  .review-detail-dialog { max-width: calc(100vw - 28px); padding: 22px; }
+  .review-detail-content { grid-template-columns: 90px minmax(0,1fr); gap: 16px; }
+  .review-detail-content > img { width: 90px; }
+  .review-detail-score { font-size: 34px; }
+}
 @media(prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition: none !important; } }

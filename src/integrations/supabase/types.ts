@@ -353,6 +353,31 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      submit_club_review: {
+        Args: {
+          p_comment: string
+          p_movie_id: string
+          p_rating: number
+          p_recommend: boolean
+        }
+        Returns: {
+          administrator_id: string
+          comment: string
+          created_at: string
+          id: string
+          movie_id: string
+          rating: number
+          recommend: boolean
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "reviews"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role: "owner" | "admin"

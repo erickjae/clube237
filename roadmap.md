@@ -1,5 +1,6 @@
 # Clube237 — Etapa 01
 
+- [x] Implementar “Minhas avaliações” com ciclo pela fila, formulário validado, lista, detalhes, exclusão e publicação.
 - [x] Implementar “Minha fila” com pesquisa TMDB, inclusão, remoção, lista visual, estado vazio e isolamento entre contas.
 - [x] Implementar a gestão real de administradores em `/admin`, com listagem, cadastro, bloqueio, reativação e redefinição de senha.
 

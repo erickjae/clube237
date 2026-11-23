@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { queryOptions, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { Film, ListPlus, Search, Trash2 } from 'lucide-react';
+import { Film, ListPlus, Search, Star, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EmptyClub } from '@/components/catalog-view';
+import { ReviewFormDialog } from '@/components/review-form-dialog';
 import { searchMovies } from '@/services/catalog.functions';
 import { registerMovie } from '@/services/movie.functions';
 import { addToWatchlist, myWatchlist, removeFromWatchlist } from '@/services/watchlist.functions';
@@ -14,6 +15,7 @@ export const myWatchlistQueryOptions = queryOptions({
 });
 
 type SearchResult = Awaited<ReturnType<typeof searchMovies>>[number];
+export type WatchlistEntry = Awaited<ReturnType<typeof myWatchlist>>[number];
 
 export function WatchlistPanel() {
   const { data: entries } = useSuspenseQuery(myWatchlistQueryOptions);
@@ -27,6 +29,7 @@ export function WatchlistPanel() {
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [reviewTarget, setReviewTarget] = useState<WatchlistEntry | null>(null);
 
   const queuedTmdbIds = new Set(entries.map((entry) => entry.movie.tmdbId));
 
@@ -157,14 +160,28 @@ export function WatchlistPanel() {
                   <h4>{entry.movie.title}</h4>
                   <p>{entry.movie.releaseDate.slice(0, 4)}</p>
                 </div>
-                <Button variant="ghost" size="sm" disabled={busy !== ''} onClick={() => removeMovie(entry.id, entry.movie.title)}>
-                  <Trash2 />{busy === `remove-${entry.id}` ? 'Removendo…' : 'Remover'}
-                </Button>
+                <div className="watchlist-row-actions">
+                  <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => { setError(''); setNotice(''); setReviewTarget(entry); }}>
+                    <Star />Avaliar filme
+                  </Button>
+                  <Button variant="ghost" size="sm" disabled={busy !== ''} onClick={() => removeMovie(entry.id, entry.movie.title)}>
+                    <Trash2 />{busy === `remove-${entry.id}` ? 'Removendo…' : 'Remover'}
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>
         ) : <EmptyClub title="Sua fila está vazia" description="Pesquise um filme acima e adicione o primeiro título à sua lista." />}
       </div>
+      {reviewTarget && <ReviewFormDialog
+        key={reviewTarget.id}
+        entry={reviewTarget}
+        onClose={() => setReviewTarget(null)}
+        onSaved={(title) => {
+          setReviewTarget(null);
+          setNotice(`Avaliação de ${title} salva. O filme saiu da sua fila.`);
+        }}
+      />}
     </section>
   );
 }
