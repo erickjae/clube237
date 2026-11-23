@@ -25,3 +25,28 @@ export const searchMovies = createServerFn({ method: 'POST' }).inputValidator(z.
   const response = await tmdb('/search/movie', { query: data.query, language: 'pt-BR', include_adult: 'false' });
   return response.results.filter(movie => movie.release_date && /^\d{4}-\d{2}-\d{2}$/.test(movie.release_date)).map(movie => ({ tmdb_id: movie.id, title: movie.title, poster_path: movie.poster_path, release_date: movie.release_date, overview: movie.overview }));
 });
+/**
+ * Homepage-only payload: avoid loading the entire public catalog for six cards.
+ * Movie metadata is fetched only for the six latest reviewed movie IDs.
+ */
+export const publicHome = createServerFn({ method: 'GET' }).handler(async () => {
+  const { publicClient } = await import('./public-client.server');
+  const db = publicClient();
+  const [reviews, profiles, queue] = await Promise.all([
+    db.from('reviews').select('id, rating, recommend, movie_id, administrator_id, created_at').order('created_at', { ascending: false }).limit(6),
+    db.from('profiles').select('id, administrator_id, display_name').order('created_at').limit(6),
+    db.from('watchlist').select('id').limit(1),
+  ]);
+  if (reviews.error || profiles.error || queue.error) throw new Error('O acervo não está disponível agora.');
+  const movieIds = [...new Set((reviews.data ?? []).map(review => review.movie_id))];
+  const movies = movieIds.length
+    ? await db.from('movies').select('id, title, poster_path').in('id', movieIds)
+    : { data: [], error: null };
+  if (movies.error) throw new Error('Não foi possível carregar os filmes recentes.');
+  return {
+    reviews: reviews.data ?? [],
+    profiles: profiles.data ?? [],
+    movies: movies.data ?? [],
+    hasQueue: (queue.data?.length ?? 0) > 0,
+  };
+});
