@@ -35,7 +35,7 @@ export const publicHome = createServerFn({ method: 'GET' }).handler(async () => 
   const [reviews, profiles, queue] = await Promise.all([
     db.from('reviews').select('id, rating, recommend, movie_id, administrator_id, created_at').order('created_at', { ascending: false }).limit(6),
     db.from('profiles').select('id, administrator_id, display_name').order('created_at').limit(6),
-    db.from('watchlist').select('id').limit(1),
+    db.from('watchlist').select('id', { count: 'exact', head: true }),
   ]);
   if (reviews.error || profiles.error || queue.error) throw new Error('O acervo não está disponível agora.');
   const movieIds = [...new Set((reviews.data ?? []).map(review => review.movie_id))];
@@ -47,6 +47,6 @@ export const publicHome = createServerFn({ method: 'GET' }).handler(async () => 
     reviews: reviews.data ?? [],
     profiles: profiles.data ?? [],
     movies: movies.data ?? [],
-    hasQueue: (queue.data?.length ?? 0) > 0,
+    queueCount: queue.count ?? 0,
   };
 });
