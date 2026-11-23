@@ -21,6 +21,7 @@ export function MovieQuickActions({ movie }: { movie: Movie }) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [review, setReview] = useState(false);
+  const [reviewToEdit, setReviewToEdit] = useState<NonNullable<typeof existingReview> | null>(null);
   const upcoming = movie.release_date > new Date().toISOString().slice(0, 10);
   const entry = { id: 'direct-' + movie.id, addedAt: new Date().toISOString(), movie: {
     id: movie.id, tmdbId: movie.tmdb_id ?? 0, title: movie.title, posterPath: movie.poster_path, releaseDate: movie.release_date,
@@ -31,7 +32,7 @@ export function MovieQuickActions({ movie }: { movie: Movie }) {
       const [reviews, queue] = await Promise.all([loadReviews(), loadWatchlist()]);
       const prior = reviews.find(r => r.movie.id === movie.id);
       if (prior && action === 'add') { setNotice('Você já avaliou este filme.'); return; }
-      if (action === 'review') { if (upcoming) { setNotice('Aguarde a estreia para avaliar.'); return; } setReview(true); return; }
+      if (action === 'review') { if (upcoming) { setNotice('Aguarde a estreia para avaliar.'); return; } setReviewToEdit(prior ?? null); setReview(true); return; }
       if (queue.some(q => q.movie.id === movie.id)) { setNotice('Este filme já está na sua fila.'); return; }
       await add({ data: { movieId: movie.id } });
       await Promise.all([client.invalidateQueries({ queryKey: ['my-watchlist'] }), client.invalidateQueries({ queryKey: ['my-dashboard'] }), client.invalidateQueries({ queryKey: ['public-catalog'] })]);
@@ -44,6 +45,6 @@ export function MovieQuickActions({ movie }: { movie: Movie }) {
     <Button size="sm" variant="outline" disabled={busy || !!existingReview} onClick={() => void perform('add')}>{existingReview ? 'Já avaliado' : 'Minha fila +'}</Button>
     <Button size="sm" disabled={busy || upcoming} onClick={() => void perform('review')}>{upcoming ? 'Em breve' : existingReview ? 'Reavaliar' : 'Avaliar'}</Button>
     {notice && <p role="status" className="movie-quick-notice">{notice}</p>}
-    {review && <ReviewFormDialog entry={entry} direct existingReview={existingReview} onClose={() => setReview(false)} onSaved={() => { setReview(false); setNotice(existingReview ? 'Avaliação atualizada!' : 'Avaliação publicada!'); void Promise.all([client.invalidateQueries({ queryKey: ['films-page'] }), client.invalidateQueries({ queryKey: ['my-reviews', 'quick-actions'] })]); }} />}
+    {review && <ReviewFormDialog entry={entry} direct existingReview={reviewToEdit ?? undefined} onClose={() => setReview(false)} onSaved={() => { setReview(false); setNotice(existingReview ? 'Avaliação atualizada!' : 'Avaliação publicada!'); void Promise.all([client.invalidateQueries({ queryKey: ['films-page'] }), client.invalidateQueries({ queryKey: ['my-reviews', 'quick-actions'] })]); }} />}
   </div>;
 }
