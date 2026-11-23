@@ -59,6 +59,21 @@ export const submitReview = createServerFn({ method: 'POST' })
     return { id: saved.id };
   });
 
+export const submitDirectReview = createServerFn({ method: 'POST' })
+  .middleware([clubAuth])
+  .inputValidator(reviewSchema.extend({ movieId: z.string().uuid() }))
+  .handler(async ({ data, context }) => {
+    if (context.account.must_change_password) throw new Error('Altere sua senha provisória primeiro.');
+    const { data: saved, error } = await context.supabase.rpc('submit_direct_club_review', {
+      p_movie_id: data.movieId,
+      p_rating: data.rating,
+      p_recommend: data.recommend,
+      p_comment: data.comment,
+    });
+    if (error) throw new Error(reviewWriteError(error.code));
+    return { id: saved.id };
+  });
+
 export const deleteReview = createServerFn({ method: 'POST' })
   .middleware([clubAuth])
   .inputValidator(z.object({ reviewId: z.string().uuid() }))
