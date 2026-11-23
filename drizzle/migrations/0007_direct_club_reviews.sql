@@ -22,7 +22,7 @@ BEGIN
   -- Inserção temporária na mesma transação: a função existente valida e remove a fila.
   INSERT INTO public.watchlist (movie_id, administrator_id)
   VALUES (p_movie_id, member_id)
-  ON CONFLICT (administrator_id, movie_id) DO NOTHING;
+  ON CONFLICT (movie_id, administrator_id) DO NOTHING;
 
   SELECT * INTO saved FROM public.submit_club_review(p_movie_id,p_rating,p_recommend,p_comment);
   RETURN saved;
