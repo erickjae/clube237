@@ -73,6 +73,7 @@ export const publicFilmFilters = createServerFn({ method: 'GET' }).handler(async
   ]);
   if (genres.error || profiles.error) throw new Error('Não foi possível carregar os filtros.');
   return { genres: genres.data ?? [], profiles: profiles.data ?? [] };
+  });
 /**
  * Homepage-only payload: avoid loading the entire public catalog for six cards.
  * Movie metadata is fetched only for the six latest reviewed movie IDs.
