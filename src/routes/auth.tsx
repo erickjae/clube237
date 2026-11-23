@@ -117,6 +117,7 @@ function Auth() {
             <Button disabled={busy} type="submit">
               {busy ? 'Aguarde…' : phase === 'change' ? 'Definir nova senha' : 'Entrar no clube'}<ArrowRight />
             </Button>
+            {phase === 'login' && <p className="text-sm text-center"><a href="/esqueci-senha">Esqueci minha senha</a></p>}
             <p className="text-xs text-muted-foreground text-center">Acesso privado. Não há cadastro público.</p>
           </form>
         </section>
