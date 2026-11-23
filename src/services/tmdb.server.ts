@@ -5,7 +5,7 @@ export async function tmdb(path: string, params: Record<string, string>) {
   return z.object({ results: z.array(movie) }).parse(response);
 }
 export async function tmdbMovie(id: number, language: string) {
-  return movie.parse(await request(`/movie/${id}`, { language }));
+  return movie.parse(await tmdbRequest(`/movie/${id}`, { language }));
 }
 export async function tmdbRequest(path: string, params: Record<string, string>) {
   const token = process.env['TMDB_API_TOKEN'];
