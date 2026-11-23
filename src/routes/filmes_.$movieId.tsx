@@ -37,13 +37,7 @@ function MovieDetails() {
       <><div className="movie-detail-heading">
         {movie.poster_path ? <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={`Pôster de ${movie.title}`} /> : <div className="movie-detail-placeholder"><Film /></div>}
         <div><p className="eyebrow">Clube237 · Detalhes do filme</p><div className="movie-title-row"><h1>{movie.title}</h1>{average !== null && <span className="movie-detail-rating" aria-label={`Nota média do Clube237: ${average.toFixed(1)} de 10`}><Star size={20} fill="currentColor" />{average.toFixed(1).replace('.', ',')}</span>}</div><p>{movie.release_date.slice(0,4)}</p><h2 className="movie-synopsis-label">Sinopse</h2><p>{movie.overview || 'Sinopse ainda não disponível.'}</p>
-        <section className="movie-watch-providers" aria-label="Onde assistir"><h2>Onde assistir</h2><p>Disponibilidade no Brasil</p>
-        {providersLoading ? <p>Consultando plataformas…</p> : providersError ? <p>Não foi possível consultar as plataformas agora.</p> : providerGroups.some(group => group.items.length > 0) ? <>
-          {providerGroups.filter(group => group.items.length > 0).map(group => <div className="movie-provider-group" key={group.label}><h3>{group.label}</h3><div className="movie-provider-list">{group.items.map(item => <div className="movie-provider" key={item.provider_id}>{item.logo_path ? <img src={`https://image.tmdb.org/t/p/w92${item.logo_path}`} alt="" loading="lazy" /> : null}<span>{item.provider_name}</span></div>)}</div></div>)}
-          {providers?.link && <a href={providers.link} target="_blank" rel="noopener noreferrer" className="movie-provider-link">Consultar opções para assistir</a>}
-        </> : <p>Nenhuma plataforma informada para o Brasil no momento.</p>}
-        <p className="movie-provider-credit">Dados de disponibilidade fornecidos por JustWatch via TMDB. Sujeitos a alterações.</p>
-        </section>
+
         {reviews.length > 0 && <p>{reviews.length} {reviews.length === 1 ? 'avaliação publicada' : 'avaliações publicadas'}</p>}</div>
       </div>
       {reviews.length > 0 && <section className="movie-reviews"><h2>Percepções dos membros</h2>
@@ -59,6 +53,13 @@ function MovieDetails() {
         </article>; })}
       </section>}
       {!reviews.length && <p className="movie-no-reviews">Este filme ainda não recebeu avaliações dos membros do clube.</p>}
+      <section className="movie-watch-providers" aria-label="Onde assistir"><h2>Onde assistir</h2><p>Disponibilidade no Brasil</p>
+      {providersLoading ? <p>Consultando plataformas…</p> : providersError ? <p>Não foi possível consultar as plataformas agora.</p> : providerGroups.some(group => group.items.length > 0) ? <>
+        {providerGroups.filter(group => group.items.length > 0).map(group => <div className="movie-provider-group" key={group.label}><h3>{group.label}</h3><div className="movie-provider-list">{group.items.map(item => <div className="movie-provider" key={item.provider_id}>{item.logo_path ? <img src={`https://image.tmdb.org/t/p/w92${item.logo_path}`} alt="" loading="lazy" /> : null}<span>{item.provider_name}</span></div>)}</div></div>)}
+        {providers?.link && <a href={providers.link} target="_blank" rel="noopener noreferrer" className="movie-provider-link">Consultar opções para assistir</a>}
+      </> : <p>Nenhuma plataforma informada para o Brasil no momento.</p>}
+      <p className="movie-provider-credit">Dados de disponibilidade fornecidos por JustWatch via TMDB. Sujeitos a alterações.</p>
+      </section>
       </>}
   </div></ClubShell>;
 }
