@@ -60,7 +60,7 @@ export const publicFilmsPage = createServerFn({ method: 'POST' })
     if (error) throw new Error('Não foi possível carregar a página de filmes.');
     return result as unknown as {
       total: number;
-      movies: Array<{ id: string; title: string; poster_path: string | null; release_date: string; review_count: number; average_rating: number }>;
+      movies: Array<{ id: string; title: string; poster_path: string | null; release_date: string; review_count: number; average_rating: number; genres: string[] }>;
     };
   });
 
