@@ -565,3 +565,9 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
 .queue-member { min-width:0; overflow-wrap:anywhere; }
 @media(max-width:1000px) { .film-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } .film-filters > input:first-child { grid-column:span 2; } }
 @media(max-width:600px) { .film-filters { grid-template-columns:minmax(0,1fr); } .film-filters > input:first-child,.film-filters > label { grid-column:auto; } .film-filters > button { justify-self:stretch; } .film-grid { gap:14px; } .queue-film-link h3 { min-height:0; } }
+
+.catalog-film-link { display:block; min-width:0; }
+.movie-quick-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; }
+.movie-quick-actions button { flex:1 1 auto; min-width:0; font-size:12px; }
+.movie-quick-notice { flex-basis:100%; font-size:12px; line-height:1.5; color:var(--muted-foreground); overflow-wrap:anywhere; }
+@media(max-width:600px) { .movie-quick-actions { gap:6px; } .movie-quick-actions button { padding-inline:8px; font-size:11px; } }
