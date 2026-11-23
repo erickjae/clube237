@@ -73,4 +73,28 @@ export const publicFilmFilters = createServerFn({ method: 'GET' }).handler(async
   ]);
   if (genres.error || profiles.error) throw new Error('Não foi possível carregar os filtros.');
   return { genres: genres.data ?? [], profiles: profiles.data ?? [] };
+/**
+ * Homepage-only payload: avoid loading the entire public catalog for six cards.
+ * Movie metadata is fetched only for the six latest reviewed movie IDs.
+ */
+export const publicHome = createServerFn({ method: 'GET' }).handler(async () => {
+  const { publicClient } = await import('./public-client.server');
+  const db = publicClient();
+  const [reviews, profiles, queue] = await Promise.all([
+    db.from('reviews').select('id, rating, recommend, movie_id, administrator_id, created_at').order('created_at', { ascending: false }).limit(6),
+    db.from('profiles').select('id, administrator_id, display_name').order('created_at').limit(6),
+    db.from('watchlist').select('id', { count: 'exact', head: true }),
+  ]);
+  if (reviews.error || profiles.error || queue.error) throw new Error('O acervo não está disponível agora.');
+  const movieIds = [...new Set((reviews.data ?? []).map(review => review.movie_id))];
+  const movies = movieIds.length
+    ? await db.from('movies').select('id, title, poster_path').in('id', movieIds)
+    : { data: [], error: null };
+  if (movies.error) throw new Error('Não foi possível carregar os filmes recentes.');
+  return {
+    reviews: reviews.data ?? [],
+    profiles: profiles.data ?? [],
+    movies: movies.data ?? [],
+    queueCount: queue.count ?? 0,
+  };
 });
