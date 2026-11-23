@@ -140,3 +140,19 @@ export const myReviewsPage = createServerFn({ method: 'POST' })
       })),
     };
   });
+
+/** Update an existing review owned by the authenticated administrator. */
+export const updateMyReview = createServerFn({ method: 'POST' })
+  .middleware([clubAuth])
+  .inputValidator(reviewSchema.extend({ reviewId: z.string().uuid() }))
+  .handler(async ({ data, context }) => {
+    if (context.account.must_change_password) throw new Error('Altere sua senha provisória primeiro.');
+    const { data: updated, error } = await context.supabase.from('reviews')
+      .update({ rating: data.rating, recommend: data.recommend, comment: data.comment })
+      .eq('id', data.reviewId)
+      .eq('administrator_id', context.account.id)
+      .select('id');
+    if (error) throw new Error(reviewWriteError(error.code));
+    if (!updated?.length) throw new Error('Avaliação não encontrada ou sem permissão para editar.');
+    return { id: updated[0].id };
+  });
