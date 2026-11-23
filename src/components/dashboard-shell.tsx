@@ -1,5 +1,5 @@
 import { useState, type ComponentType, type ReactNode } from 'react';
-import { Link, useRouter } from '@tanstack/react-router';
+import { Link, useRouter, useLocation } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowUpRight, LogOut } from 'lucide-react';
 import { Wordmark } from '@/components/club-shell';
@@ -25,6 +25,7 @@ type DashboardShellProps = {
 
 export function DashboardShell({ eyebrow, title, welcome, description, navigation, children }: DashboardShellProps) {
   const router = useRouter();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -46,7 +47,7 @@ export function DashboardShell({ eyebrow, title, welcome, description, navigatio
   return (
     <div className="dashboard-shell">
       <header className="dashboard-header">
-        <Link to={typeof window !== "undefined" && window.location.pathname.startsWith("/admin") ? "/admin" : "/painel"} aria-label="Clube237, voltar ao painel"><Wordmark /></Link>
+        <Link to={location.pathname.startsWith("/admin") ? "/admin" : "/painel"} aria-label="Clube237, voltar ao painel"><Wordmark /></Link>
         <Button variant="outline" size="sm" onClick={signOut} disabled={busy}>
           <LogOut />{busy ? 'Saindo…' : 'Sair da conta'}
         </Button>
