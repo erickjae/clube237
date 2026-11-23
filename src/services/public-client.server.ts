@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
-export function publicClient() {
+export function publicClient(accessToken?: string) {
   const url = process.env['SUPABASE_URL'];
   const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
   if (!url || !key) throw new Error('Conexão indisponível.');
@@ -11,6 +11,7 @@ export function publicClient() {
       const headers = new Headers(init?.headers);
       if (key.startsWith('sb_') && headers.get('Authorization') === `Bearer ${key}`) headers.delete('Authorization');
       headers.set('apikey', key);
+      if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
       return fetch(input, { ...init, headers });
     } },
   });
