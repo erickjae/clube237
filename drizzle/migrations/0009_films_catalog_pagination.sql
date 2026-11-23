@@ -26,7 +26,8 @@ begin
     group by r.movie_id
   ), matching as (
     select m.id, m.title, m.poster_path, m.release_date,
-      rated.review_count, rated.average_rating
+      rated.review_count, rated.average_rating,
+      coalesce((select array_agg(g.name order by g.name) from public.movie_genres mg join public.genres g on g.id = mg.genre_id where mg.movie_id = m.id), array[]::text[]) as genres
     from public.movies m
     join rated on rated.movie_id = m.id
     where (trim(p_search) = '' or strpos(lower(m.title), lower(trim(p_search))) > 0)
