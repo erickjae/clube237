@@ -1,4 +1,5 @@
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { Film, ListVideo, Star, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { myDashboard } from '@/services/dashboard.functions';
 
@@ -20,6 +21,16 @@ export function MemberOverview() {
       <div className="member-overview-stat"><Star aria-hidden="true" size={20}/><strong>{data.averageRating === null ? '—' : data.averageRating.toFixed(1).replace('.', ',')}</strong><span>Minha nota média</span></div>
       <div className="member-overview-stat"><ThumbsUp aria-hidden="true" size={20}/><strong>{data.recommendationPercent === null ? '—' : `${Math.round(data.recommendationPercent)}%`}</strong><span>Filmes que recomendo</span></div>
     </div>
+    <section className="member-overview-genres">
+      <h3>Seu ritmo no clube</h3>
+      <div className="member-overview-grid member-overview-summary">
+        <div className="member-overview-stat"><strong>{data.thisMonth}</strong><span>Avaliações neste mês</span></div>
+        <div className="member-overview-stat"><strong>{data.last30Days}</strong><span>Nos últimos 30 dias</span></div>
+      </div>
+      <p className="text-sm text-muted-foreground">{data.nextStep}</p>
+      {data.latestReview && <p className="text-sm">Sua última avaliação: <strong>{data.latestReview.title}</strong> ({Number(data.latestReview.rating).toFixed(1).replace('.', ',')}/10).</p>}
+      <p className="text-sm"><Link to="/filmes" className="underline">Descobrir filmes avaliados pelo clube</Link></p>
+    </section>
     <section className="member-overview-genres"><h3>Meus gêneros mais assistidos</h3>
       {data.genreCounts.length ? <div className="member-overview-genre-list">{data.genreCounts.map(g => <div className="member-overview-genre" key={g.name}><div><span>{g.name}</span><strong>{g.count}</strong></div><div className="member-overview-track"><span style={{ width: `${g.count/max*100}%` }} /></div></div>)}</div> : <p className="text-sm text-muted-foreground">Avalie seus primeiros filmes para descobrir seus gêneros mais assistidos.</p>}
       <p className="text-xs text-muted-foreground">Um filme pode contar em mais de um gênero.</p>
