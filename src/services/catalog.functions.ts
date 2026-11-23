@@ -25,6 +25,54 @@ export const searchMovies = createServerFn({ method: 'POST' }).inputValidator(z.
   const response = await tmdb('/search/movie', { query: data.query, language: 'pt-BR', include_adult: 'false' });
   return response.results.filter(movie => movie.release_date && /^\d{4}-\d{2}-\d{2}$/.test(movie.release_date)).map(movie => ({ tmdb_id: movie.id, title: movie.title, poster_path: movie.poster_path, release_date: movie.release_date, overview: movie.overview }));
 });
+const filmPageInput = z.object({
+  page: z.number().int().min(1).max(100000).default(1),
+  search: z.string().trim().max(100).default(''),
+  genreId: z.string().uuid().nullable().default(null),
+  administratorId: z.string().uuid().nullable().default(null),
+  recommend: z.boolean().nullable().default(null),
+  sort: z.enum(['best', 'worst', 'most', 'title']).default('best'),
+  hideReviewed: z.boolean().default(false),
+  accessToken: z.string().max(4096).optional(),
+});
+
+export const publicFilmsPage = createServerFn({ method: 'POST' })
+  .inputValidator(filmPageInput)
+  .handler(async ({ data }) => {
+    const { publicClient } = await import('./public-client.server');
+    const db = publicClient();
+    let verifiedToken: string | undefined;
+    if (data.hideReviewed && data.accessToken) {
+      const { data: identity, error } = await db.auth.getUser(data.accessToken);
+      if (!error && identity.user) verifiedToken = data.accessToken;
+    }
+    // Only validated sessions can influence the personal watched filter.
+    const client = verifiedToken ? publicClient(verifiedToken) : db;
+    const { data: result, error } = await client.rpc('club_films_page' as never, {
+      p_page: data.page,
+      p_search: data.search,
+      p_genre_id: data.genreId,
+      p_administrator_id: data.administratorId,
+      p_recommend: data.recommend,
+      p_sort: data.sort,
+      p_hide_reviewed: !!verifiedToken && data.hideReviewed,
+    } as never);
+    if (error) throw new Error('Não foi possível carregar a página de filmes.');
+    return result as unknown as {
+      total: number;
+      movies: Array<{ id: string; title: string; poster_path: string | null; release_date: string; review_count: number; average_rating: number; genres: string[] }>;
+    };
+  });
+
+export const publicFilmFilters = createServerFn({ method: 'GET' }).handler(async () => {
+  const { publicClient } = await import('./public-client.server');
+  const db = publicClient();
+  const [genres, profiles] = await Promise.all([
+    db.from('genres').select('id, name').order('name'),
+    db.from('profiles').select('administrator_id, display_name').order('display_name'),
+  ]);
+  if (genres.error || profiles.error) throw new Error('Não foi possível carregar os filtros.');
+  return { genres: genres.data ?? [], profiles: profiles.data ?? [] };
 /**
  * Homepage-only payload: avoid loading the entire public catalog for six cards.
  * Movie metadata is fetched only for the six latest reviewed movie IDs.
