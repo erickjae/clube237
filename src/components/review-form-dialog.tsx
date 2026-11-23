@@ -50,6 +50,7 @@ export function ReviewFormDialog({ entry, direct = false, onClose, onSaved }: Re
         queryClient.invalidateQueries({ queryKey: ['my-watchlist'] }),
         queryClient.invalidateQueries({ queryKey: ['my-reviews'] }),
         queryClient.invalidateQueries({ queryKey: ['public-catalog'] }),
+        queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
       ]);
       onSaved(entry.movie.title);
     } catch (saveError) {
