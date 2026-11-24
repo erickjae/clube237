@@ -582,3 +582,19 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
 .catalog-film-meta .film-review-count { margin-top:auto; padding-top:8px; }
 .film-item:has(.catalog-film-link) > .movie-quick-actions { margin-top:12px; }
 @media(max-width:600px) { .film-hide-reviewed { width:100%; } .catalog-film-meta h3 { overflow-wrap:anywhere; } }
+
+/* PR #22 — catalog navigation and quick-add dialog; existing filters unchanged */
+.catalog-page-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.catalog-page-heading > div { min-width:0; }
+.catalog-page-heading > button { flex-shrink:0; }
+.catalog-add-dialog { width:calc(100% - 28px); max-width:680px; max-height:calc(100svh - 28px); overflow-y:auto; }
+.catalog-add-search { display:flex; gap:10px; align-items:center; }
+.catalog-add-search > input { flex:1; min-width:0; }
+.catalog-add-results { display:grid; gap:12px; }
+.catalog-add-result { display:grid; grid-template-columns:72px minmax(0,1fr); gap:12px; align-items:center; padding:12px; border:1px solid var(--border); border-radius:6px; }
+.catalog-add-result > img,.catalog-add-placeholder { width:72px; aspect-ratio:2/3; object-fit:cover; background:var(--muted); border-radius:4px; }
+.catalog-add-placeholder { display:grid; place-items:center; }
+.catalog-add-result h3 { overflow-wrap:anywhere; font-size:14px; }
+.catalog-add-result p { color:var(--muted-foreground); font-size:12px; margin-top:4px; }
+.catalog-add-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+@media(max-width:600px) { .catalog-page-heading { flex-wrap:wrap; gap:12px; } .catalog-page-heading > button { width:100%; } .catalog-add-search { flex-wrap:wrap; } .catalog-add-search > input { flex-basis:100%; } .catalog-add-search > button { width:100%; } .catalog-add-result { grid-template-columns:56px minmax(0,1fr); padding:8px; gap:10px; } .catalog-add-result > img,.catalog-add-placeholder { width:56px; } .catalog-add-actions > button { flex:1 1 100%; } }
