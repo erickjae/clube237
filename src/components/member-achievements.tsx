@@ -3,7 +3,7 @@ import {progress, type MemberProgress} from '@/lib/achievements';
 import {publicMemberAchievements} from '@/services/member-achievements.functions';
 export const memberAchievementsOptions={queryKey:['member-achievements'],queryFn:()=>publicMemberAchievements(),staleTime:0};
 type Item=ReturnType<typeof progress>[number]['items'][number];
-function Badge({item,next}:{item:Item;next?:Item}) {
+function Badge({item,next}:{item:Item;next?:Item|undefined}) {
  return <details className="achievement-badge"><summary style={{borderColor:item.color}} title={item.label} aria-label={item.label}>{item.emoji}</summary><div className="achievement-tip"><strong>{item.label}</strong><p>{item.category} · {item.tier}</p><p>{item.count} filmes avaliados · meta {item.goal}</p>{next?<p>Próxima: {next.label}<br/>Faltam {next.goal-item.count} filmes ({item.count}/{next.goal}).</p>:<p>Nível máximo alcançado!</p>}</div></details>;
 }
 export function AchievementShowcase({member}:{member:MemberProgress}) {
