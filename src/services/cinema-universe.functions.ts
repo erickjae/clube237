@@ -15,3 +15,18 @@ export const myCinemaUniverse = createServerFn({ method: 'GET' }).middleware([cl
  if (error || !data) throw new Error('Não foi possível carregar seu universo.');
  return data as unknown as CinemaUniverse;
 });
+
+export type CinemaPeople = {
+ coverage: number;
+ actors: CinemaPerson[];
+ directors: CinemaPerson[];
+ languages: { name: string; total: number }[];
+ countries: { name: string; total: number }[];
+};
+type CinemaPerson = { tmdb_id: number; name: string; profile_path: string | null; total: number; average_rating: number; recommendation_percent: number };
+export const myCinemaPeople = createServerFn({ method: 'GET' }).middleware([clubAuth]).handler(async ({ context }) => {
+ if (context.account.must_change_password) throw new Error('Atualize sua senha para continuar.');
+ const { data, error } = await context.supabase.rpc('my_cinema_universe_people' as never);
+ if (error || !data) throw new Error('Não foi possível carregar os créditos.');
+ return data as unknown as CinemaPeople;
+});
