@@ -1,0 +1,29 @@
+name: Cinema metadata
+on:
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: cinema-metadata-production
+  cancel-in-progress: false
+jobs:
+  enrich:
+    if: vars.CINEMA_METADATA_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Process up to ten films
+        env:
+          CRON_SECRET: ${{ secrets.CINEMA_METADATA_CRON_SECRET }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CRON_SECRET"
+          for i in $(seq 1 10); do
+            result=$(curl --silent --show-error --fail --max-time 25 -H "Authorization: Bearer $CRON_SECRET" https://clube237.vercel.app/api/public/cinema-metadata-cron)
+            if ! jq -e '.completed == 1 and .failed == 0' <<< "$result" >/dev/null; then
+              break
+            fi
+            sleep 1
+          done

@@ -11,7 +11,7 @@ import type { WatchlistEntry } from '@/components/watchlist-panel';
 type ReviewFormDialogProps = {
   entry: WatchlistEntry;
   direct?: boolean;
-  existingReview?: { id: string; rating: number; recommend: boolean; comment: string };
+  existingReview?: { id: string; rating: number; recommend: boolean; comment: string } | undefined;
   onClose: () => void;
   onSaved: (title: string) => void;
 };
@@ -56,6 +56,7 @@ export function ReviewFormDialog({ entry, direct = false, existingReview, onClos
         queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
         queryClient.invalidateQueries({ queryKey: ['my-reviews-page'] }),
         queryClient.invalidateQueries({ queryKey: ['films-page'] }),
+        queryClient.invalidateQueries({ predicate: q => String(q.queryKey[0]).startsWith('my-cinema-') || q.queryKey[0] === 'member-achievements' }),
       ]);
       onSaved(entry.movie.title);
     } catch (saveError) {

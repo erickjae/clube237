@@ -25,7 +25,7 @@ export function CatalogAddMovie({ userId }: { userId: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [target, setTarget] = useState<{ entry: WatchlistEntry; existing?: Review } | null>(null);
+  const [target, setTarget] = useState<{ entry: WatchlistEntry; existing?: Review | undefined } | null>(null);
   const queue = useQuery({ queryKey: ['my-watchlist', userId], queryFn: () => myWatchlist(), enabled: open });
   const reviews = useQuery({ queryKey: ['my-reviews', userId], queryFn: () => myReviews(), enabled: open });
   async function find(event: React.FormEvent<HTMLFormElement>) {

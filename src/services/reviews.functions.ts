@@ -69,14 +69,14 @@ export const submitDirectReview = createServerFn({ method: 'POST' })
     if (context.account.must_change_password) throw new Error('Altere sua senha provisória primeiro.');
     const { data: movie } = await context.supabase.from('movies').select('release_date').eq('id', data.movieId).maybeSingle();
     if (movie && movie.release_date > new Date().toISOString().slice(0, 10)) throw new Error('Este filme ainda não estreou. Você poderá avaliá-lo após o lançamento.');
-    const { data: saved, error } = await context.supabase.rpc('submit_direct_club_review', {
+    const { data: saved, error } = await context.supabase.rpc('submit_direct_club_review' as never, {
       p_movie_id: data.movieId,
       p_rating: data.rating,
       p_recommend: data.recommend,
       p_comment: data.comment,
-    });
+    } as never);
     if (error) throw new Error(reviewWriteError(error.code));
-    return { id: saved.id };
+    return { id: (saved as unknown as { id: string }).id };
   });
 
 export const deleteReview = createServerFn({ method: 'POST' })
@@ -153,6 +153,6 @@ export const updateMyReview = createServerFn({ method: 'POST' })
       .eq('administrator_id', context.account.id)
       .select('id');
     if (error) throw new Error(reviewWriteError(error.code));
-    if (!updated?.length) throw new Error('Avaliação não encontrada ou sem permissão para editar.');
+    if (!updated?.[0]) throw new Error('Avaliação não encontrada ou sem permissão para editar.');
     return { id: updated[0].id };
   });
