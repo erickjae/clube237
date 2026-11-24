@@ -18,19 +18,21 @@ export function CatalogView({ filters }: { filters: Filters }) {
   const navigate = useNavigate({ from: '/filmes' });
   const { query, genreId, administratorId, recommend, sort, hideReviewed, page } = state;
   const change = (patch: Partial<typeof state>) => { void navigate({ search: prev => ({ ...prev, ...patch, page: 1 }), replace: true, resetScroll: false }); };
-  const changePage = (next: number) => { void navigate({ search: prev => ({ ...prev, page: next }), resetScroll: true }); window.scrollTo({ top: 0, behavior: 'instant' }); };
+  const changePage = (next: number) => { void navigate({ search: prev => ({ ...prev, page: next }), resetScroll: true }); window.scrollTo({ top: 0, behavior: 'auto' }); };
   const restored = useRef(false);
   const [accessToken, setAccessToken] = useState<string | undefined>();
+  const [authReady, setAuthReady] = useState(false);
   useEffect(() => {
     let active = true;
     const refresh = async () => {
       const { data } = await supabase.auth.getSession();
-      if (active) setAccessToken(data.session?.access_token);
+      if (active) { setAccessToken(data.session?.access_token); setAuthReady(true); }
     };
     void refresh();
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (active) {
         setAccessToken(session?.access_token);
+        setAuthReady(true);
 
       }
     });
@@ -38,7 +40,7 @@ export function CatalogView({ filters }: { filters: Filters }) {
   }, []);
   const search = useQuery({
     queryKey: ['films-page', page, query, genreId, administratorId, recommend, sort, hideReviewed, hideReviewed ? accessToken : null],
-    enabled: !hideReviewed || !!accessToken,
+    enabled: !hideReviewed || authReady,
     staleTime: 60000,
     queryFn: () => publicFilmsPage({ data: {
       page, search: query, genreId: genreId || null, administratorId: administratorId || null,
@@ -55,7 +57,7 @@ export function CatalogView({ filters }: { filters: Filters }) {
       if (saved) {
         const target = JSON.parse(saved);
         sessionStorage.removeItem('clube237:catalog-return');
-        if (target.url === window.location.pathname + window.location.search) requestAnimationFrame(() => window.scrollTo({ top: target.y, behavior: 'instant' }));
+        if (target.url === window.location.pathname + window.location.search) requestAnimationFrame(() => window.scrollTo({ top: target.y, behavior: 'auto' }));
       }
     } catch { /* storage unavailable */ }
   }, [search.isSuccess]);
