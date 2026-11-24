@@ -51,6 +51,7 @@ export function ReviewsPanel() {
         queryClient.invalidateQueries({ queryKey: ['my-reviews-page'] }),
         queryClient.invalidateQueries({ queryKey: ['public-catalog'] }),
         queryClient.invalidateQueries({ queryKey: ['my-dashboard'] }),
+        queryClient.invalidateQueries({ predicate: q => String(q.queryKey[0]).startsWith('my-cinema-') || q.queryKey[0] === 'member-achievements' }),
       ]);
       setNotice(`Avaliação de ${title} excluída. O filme não voltou para a sua fila.`);
     } catch (deleteError) {
