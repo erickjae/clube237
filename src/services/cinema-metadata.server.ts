@@ -49,6 +49,10 @@ export async function processCinemaMetadata() {
    completed++;
   } catch(error) {
    const delay = error instanceof RateLimit ? error.delay : Math.min(86400,60*2**job.attempts);
+   if (error instanceof RateLimit) {
+    const pause = await supabaseAdmin.rpc('pause_cinema_metadata' as never,{p_delay:Math.min(86400,delay)} as never);
+    if (pause.error) throw new Error('Queue cooldown failed');
+   }
    const result = await supabaseAdmin.rpc('fail_cinema_metadata_job' as never,{p_movie:job.movie_id,p_lease:job.lease_until,p_delay:delay} as never);
    if (result.error) throw new Error('Queue failure recording failed');
    failed++;
