@@ -1,6 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Film, Clock, Star, ThumbsUp } from 'lucide-react';
-import { myCinemaUniverse, myCinemaPeople, myCinemaAffinity, type CinemaPeople } from '@/services/cinema-universe.functions';
+import { myCinemaUniverse, myCinemaPeople, myCinemaAffinity, myCinemaSuggestions, type CinemaPeople } from '@/services/cinema-universe.functions';
+
+import { addToWatchlist } from '@/services/watchlist.functions';
 
 const fmt = (n: number | null) => n === null ? '—' : Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 
@@ -40,6 +42,7 @@ export function CinemaUniverse({ memberKey }: { memberKey: string }) {
    <section className="member-overview-genres"><h3>Memórias: seus cinco favoritos</h3>{data.favorites.map(f=><p key={f.movie_id}>{f.title} — {fmt(f.rating)}/10</p>)}</section>
    <CinemaCredits memberKey={memberKey} reviewed={t.reviewed} />
    <CinemaAffinityPanel memberKey={memberKey} />
+   <CinemaSuggestionsPanel memberKey={memberKey} />
   </>}
  </section>;
 }
@@ -82,5 +85,30 @@ function CinemaAffinityPanel({memberKey}: {memberKey:string}) {
   <h3>Quem compartilha seu olhar?</h3>
   <p className="text-sm text-muted-foreground">Afinidade: 70% proximidade das notas e 30% concordância nas recomendações. Até três membros com maior afinidade. Mínimo de cinco filmes em comum.</p>
   {isPending ? <p role="status">Calculando afinidades…</p> : isError ? <div><p role="alert">Afinidades indisponíveis.</p><button type="button" onClick={()=>void refetch()}>Tentar novamente</button></div> : !data?.length ? <p>Ainda não há membros com avaliações suficientes em comum.</p> : <div className="member-overview-genre-list">{data.slice(0,3).map(p=><div className="member-overview-genre" key={p.id}><div><span>{p.display_name} · {p.common} filmes em comum</span><strong>{fmt(p.affinity)}%</strong></div><div className="member-overview-track" aria-hidden="true"><span style={{width:Math.max(0,Math.min(100,p.affinity))+'%'}}/></div></div>)}</div>}
+ </section>;
+}
+
+function CinemaSuggestionsPanel({memberKey}: {memberKey:string}) {
+ const client=useQueryClient();
+ const key=['my-cinema-suggestions',memberKey];
+ const {data,isPending,isError,refetch}=useQuery({queryKey:key,queryFn:()=>myCinemaSuggestions(),staleTime:0,refetchOnMount:'always'});
+ const add=useMutation({
+  mutationFn:(movieId:string)=>addToWatchlist({data:{movieId}}),
+  onSuccess:async (_,movieId)=>{
+   client.setQueryData<Awaited<ReturnType<typeof myCinemaSuggestions>>>(key,old=>old?.filter(f=>f.id!==movieId));
+   await Promise.all([client.invalidateQueries({queryKey:key}),client.invalidateQueries({queryKey:['my-watchlist']}),client.invalidateQueries({queryKey:['my-dashboard']})]);
+  },
+ });
+ return <section className="member-overview-genres">
+  <h3>Seu próximo filme</h3>
+  <p className="text-sm text-muted-foreground">Sugestões do catálogo do clube, baseadas em gêneros com pelo menos três avaliações e nota média a partir de 7.</p>
+  {add.isError && <p role="alert">Não foi possível adicionar o filme. Atualize a lista e tente novamente.</p>}
+  {add.isSuccess && <p role="status">Filme adicionado à sua fila.</p>}
+  {isPending ? <p role="status">Buscando sugestões…</p> : isError ? <div><p role="alert">Sugestões indisponíveis.</p><button type="button" onClick={()=>void refetch()}>Tentar novamente</button></div> : !data?.length ? <p>Ainda não encontramos novas sugestões para seu perfil.</p> : <ul className="grid gap-3 sm:grid-cols-2">{data.map(f=><li key={f.id} className="flex gap-3 rounded-lg border border-border p-3">
+   {f.poster_path && /^\/[a-zA-Z0-9_.-]+$/.test(f.poster_path) && <img src={'https://image.tmdb.org/t/p/w185'+f.poster_path} alt="" loading="lazy" className="w-20 self-start rounded object-cover"/>}
+   <div className="min-w-0 flex-1"><h4 className="break-words font-semibold">{f.title}</h4><p className="text-sm text-muted-foreground">Sua nota média em {f.reason}: {fmt(f.average_rating)} ({f.total} filmes).</p>
+    <button type="button" disabled={add.isPending} className="mt-2 rounded border border-border px-3 py-2 text-sm disabled:opacity-50" onClick={()=>add.mutate(f.id)}>{add.isPending && add.variables===f.id?'Adicionando…':'Adicionar à minha fila'}</button>
+   </div>
+  </li>)}</ul>}
  </section>;
 }
