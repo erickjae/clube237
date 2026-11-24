@@ -2,8 +2,8 @@ import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/api/public/cinema-metadata-cron')({
  server: { handlers: { GET: async ({ request }) => {
-  const secret = process.env.CRON_SECRET;
-  if (!secret || process.env.CINEMA_METADATA_ENABLED !== 'true') return new Response('Disabled', {status:503});
+  const secret = process.env['CRON_SECRET'];
+  if (!secret || process.env['CINEMA_METADATA_ENABLED'] !== 'true') return new Response('Disabled', {status:503});
   const { createHash, timingSafeEqual } = await import('node:crypto');
   const digest = (s:string) => createHash('sha256').update(s).digest();
   if (!timingSafeEqual(digest(request.headers.get('authorization') ?? ''),digest('Bearer '+secret))) return new Response('Unauthorized',{status:401});
