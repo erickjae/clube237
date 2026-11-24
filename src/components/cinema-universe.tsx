@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Film, Clock, Star, ThumbsUp } from 'lucide-react';
-import { myCinemaUniverse } from '@/services/cinema-universe.functions';
+import { myCinemaUniverse, myCinemaPeople, type CinemaPeople } from '@/services/cinema-universe.functions';
 
 const fmt = (n: number | null) => n === null ? '—' : Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 
@@ -38,6 +38,39 @@ export function CinemaUniverse({ memberKey }: { memberKey: string }) {
    <section className="member-overview-genres"><h3>Sua evolução</h3><p>{t.last30} avaliações nos últimos 30 dias.</p>{bars(data.months.slice(-12).map(m=>({label:m.month,total:m.total})))}</section>
    <section className="member-overview-genres"><h3>Décadas</h3>{bars(data.decades.map(d=>({label:String(d.decade),total:d.total})))}</section>
    <section className="member-overview-genres"><h3>Memórias: seus cinco favoritos</h3>{data.favorites.map(f=><p key={f.movie_id}>{f.title} — {fmt(f.rating)}/10</p>)}</section>
+   <CinemaCredits memberKey={memberKey} reviewed={t.reviewed} />
   </>}
  </section>;
+}
+
+function CinemaCredits({ memberKey, reviewed }: { memberKey: string; reviewed: number }) {
+ const { data, isPending, isError, refetch } = useQuery({
+  queryKey: ['my-cinema-people', memberKey],
+  queryFn: () => myCinemaPeople(),
+  staleTime: 0,
+  refetchOnMount: 'always',
+ });
+ if (isPending) return <p role="status">Carregando os créditos do seu universo…</p>;
+ if (isError || !data) return <section className="member-overview-genres"><p role="alert">Créditos temporariamente indisponíveis.</p><button type="button" onClick={() => void refetch()}>Tentar novamente</button></section>;
+ const ranking = (title: string, people: CinemaPeople['actors']) => <section className="member-overview-genres">
+  <h3>{title}</h3>
+  {people.length === 0 ? <p className="text-sm text-muted-foreground">Ainda não há créditos disponíveis.</p> : <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+   {people.map((p,i) => <li key={p.tmdb_id} className="min-w-0 rounded-lg border border-border p-3">
+    {p.profile_path && /^\/[a-zA-Z0-9_.-]+$/.test(p.profile_path) ? <img src={'https://image.tmdb.org/t/p/w185'+p.profile_path} alt="" loading="lazy" className="aspect-[2/3] w-full rounded object-cover"/> : <div aria-hidden="true" className="flex aspect-[2/3] items-center justify-center rounded bg-muted text-2xl">{i+1}</div>}
+    <p className="mt-2 break-words font-semibold">{i+1}. {p.name}</p>
+    <p className="text-sm">{p.total} {p.total === 1 ? 'filme' : 'filmes'}</p>
+    <p className="text-xs text-muted-foreground">Nota {fmt(p.average_rating)} · {fmt(p.recommendation_percent)}% recomendo</p>
+   </li>)}
+  </ol>}
+ </section>;
+ const names = (items: CinemaPeople['countries'], type: 'region' | 'language') => {
+  const display = new Intl.DisplayNames(['pt-BR'], {type});
+  return items.map(item => { let name = item.name; try { name = display.of(item.name) || name; } catch { /* preserve source code */ } return <li key={item.name} className="flex justify-between gap-3"><span>{name}</span><strong>{item.total}</strong></li>; });
+ };
+ return <>
+  <section className="member-overview-genres"><h3>Além das telas</h3><p className="text-sm text-muted-foreground">Metadados disponíveis para {data.coverage} de {reviewed} filmes avaliados. Os rankings podem mudar conforme o catálogo for enriquecido.</p></section>
+  {ranking('Atores e atrizes mais presentes',data.actors)}
+  {ranking('Diretores mais presentes',data.directors)}
+  <section className="member-overview-genres"><h3>O cinema pelo mundo</h3><h4>Países de produção</h4>{data.countries.length ? <ul>{names(data.countries,'region')}</ul> : <p>Dados ainda indisponíveis.</p>}<h4>Idiomas originais</h4>{data.languages.length ? <ul>{names(data.languages,'language')}</ul> : <p>Dados ainda indisponíveis.</p>}<p className="text-xs text-muted-foreground">Coproduções podem contar em mais de um país.</p></section>
+ </>;
 }
