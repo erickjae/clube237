@@ -105,6 +105,7 @@ export function ReviewFormDialog({ entry, direct = false, existingReview, onClos
             <label htmlFor="review-comment">Comentário</label>
             <textarea
               id="review-comment"
+              aria-describedby="review-comment-guidance"
               className="field review-comment-input"
               required
               minLength={2}
@@ -114,7 +115,7 @@ export function ReviewFormDialog({ entry, direct = false, existingReview, onClos
               value={comment}
               onChange={(event) => setComment(event.target.value)}
             />
-            <span className="review-field-note">{comment.length}/1.000 caracteres · mínimo de 2</span>
+            <p className="review-field-note" id="review-comment-guidance">Escreva do seu jeito. Compartilhe sua experiência, respeite as diferenças e não revele spoilers.</p><span className="review-field-note">{comment.length}/1.000 caracteres · mínimo de 2</span>
             {error && <p className="form-error" role="alert">{error}</p>}
             <DialogFooter>
               <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Cancelar</Button>
