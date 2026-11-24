@@ -29,7 +29,7 @@ export function MemberOverview() {
       </div>
       <p className="text-sm text-muted-foreground">{data.nextStep}</p>
       {data.latestReview && <p className="text-sm">Sua última avaliação: <strong>{data.latestReview.title}</strong> ({Number(data.latestReview.rating).toFixed(1).replace('.', ',')}/10).</p>}
-      <p className="text-sm"><Link to="/filmes" className="underline">Descobrir filmes avaliados pelo clube</Link></p>
+      <p className="text-sm"><Link to="/filmes" search={{query:"",genreId:"",administratorId:"",recommend:"",sort:"best",hideReviewed:false,page:1}} className="underline">Descobrir filmes avaliados pelo clube</Link></p>
     </section>
     <section className="member-overview-genres"><h3>Meus gêneros mais assistidos</h3>
       {data.genreCounts.length ? <div className="member-overview-genre-list">{data.genreCounts.map(g => <div className="member-overview-genre" key={g.name}><div><span>{g.name}</span><strong>{g.count}</strong></div><div className="member-overview-track"><span style={{ width: `${g.count/max*100}%` }} /></div></div>)}</div> : <p className="text-sm text-muted-foreground">Avalie seus primeiros filmes para descobrir seus gêneros mais assistidos.</p>}
