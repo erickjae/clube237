@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { createServerFn } from '@tanstack/react-start';
 import { clubAuth } from './club-auth';
 
@@ -45,4 +46,12 @@ export const myCinemaSuggestions = createServerFn({method:'GET'}).middleware([cl
  const {data,error}=await context.supabase.rpc('my_cinema_suggestions' as never);
  if(error || !data) throw new Error('Não foi possível carregar sugestões.');
  return data as unknown as CinemaSuggestion[];
+});
+
+export type CinemaFilmPage = {total:number;items:{movie_id:string;title:string;rating:number;recommend:boolean;poster_path:string|null;runtime:number|null;release_date:string|null;created_at:string}[]};
+export const myCinemaFilms=createServerFn({method:'GET'}).middleware([clubAuth]).inputValidator(z.object({kind:z.enum(['all','recommended','not_recommended','perfect','genre','month','decade']),value:z.string().max(150),page:z.number().int().min(0).max(100000)})).handler(async({data,context})=>{
+ if(context.account.must_change_password) throw new Error('Atualize sua senha para continuar.');
+ const {data:result,error}=await context.supabase.rpc('my_cinema_films' as never,{p_kind:data.kind,p_value:data.value,p_page:data.page} as never);
+ if(error||!result) throw new Error('Não foi possível carregar os filmes.');
+ return result as unknown as CinemaFilmPage;
 });
