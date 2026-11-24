@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Film, Clock, Star, ThumbsUp } from 'lucide-react';
-import { myCinemaUniverse, myCinemaPeople, myCinemaAffinity, myCinemaSuggestions, type CinemaPeople } from '@/services/cinema-universe.functions';
+import { myCinemaUniverse, myCinemaPeople, myCinemaAffinity, myCinemaSuggestions, myCinemaFilms, type CinemaPeople } from '@/services/cinema-universe.functions';
 
 import { addToWatchlist } from '@/services/watchlist.functions';
 
@@ -43,6 +44,7 @@ export function CinemaUniverse({ memberKey }: { memberKey: string }) {
    <section className="member-overview-genres"><h3>Sua evolução</h3><p>{t.last30} avaliações nos últimos 30 dias.</p>{bars(data.months.slice(-12).map(m=>({label:m.month,total:m.total})))}</section>
    <section className="member-overview-genres"><h3>Décadas</h3>{bars(data.decades.map(d=>({label:String(d.decade),total:d.total})))}</section>
    <section className="member-overview-genres"><h3>Memórias: seus cinco favoritos</h3>{data.favorites.map(f=><p key={f.movie_id}>{f.title} — {fmt(f.rating)}/10</p>)}</section>
+   <CinemaFilmDetails memberKey={memberKey} genres={data.genres.map(g=>g.name)} months={data.months.map(m=>m.month)} decades={data.decades.map(d=>String(d.decade))} />
    <CinemaCredits memberKey={memberKey} reviewed={t.reviewed} />
    <CinemaAffinityPanel memberKey={memberKey} />
    <CinemaSuggestionsPanel memberKey={memberKey} />
@@ -113,5 +115,32 @@ function CinemaSuggestionsPanel({memberKey}: {memberKey:string}) {
     <button type="button" disabled={add.isPending} className="mt-2 rounded border border-border px-3 py-2 text-sm disabled:opacity-50" onClick={()=>add.mutate(f.id)}>{add.isPending && add.variables===f.id?'Adicionando…':'Adicionar à minha fila'}</button>
    </div>
   </li>)}</ul>}
+ </section>;
+}
+
+type DetailKind = 'all'|'recommended'|'not_recommended'|'perfect'|'genre'|'month'|'decade';
+function CinemaFilmDetails({memberKey,genres,months,decades}:{memberKey:string;genres:string[];months:string[];decades:string[]}) {
+ const [open,setOpen]=useState(false);
+ const [kind,setKind]=useState<DetailKind>('all');
+ const [value,setValue]=useState('');
+ const [page,setPage]=useState(0);
+ const options=kind==='genre'?genres:kind==='month'?months:kind==='decade'?decades:[];
+ const {data,isPending,isError,refetch}=useQuery({queryKey:['my-cinema-films',memberKey,kind,value,page],queryFn:()=>myCinemaFilms({data:{kind,value,page}}),enabled:open,staleTime:0});
+ return <section className="member-overview-genres">
+ <h3>Explore seus filmes</h3>
+ <button type="button" aria-expanded={open} onClick={()=>setOpen(v=>!v)} className="rounded border border-border px-3 py-2">{open?'Fechar detalhamento':'Explorar indicadores'}</button>
+ {open&&<div className="mt-3 space-y-3">
+ <label className="block">Indicador <select className="rounded border border-border bg-background p-2" value={kind} onChange={e=>{const k=e.target.value as DetailKind;setKind(k);setValue(k==='genre'?genres[0]??'':k==='month'?months[0]??'':k==='decade'?decades[0]??'':'');setPage(0);}}>
+ {([['all','Todos'],['recommended','Recomendados'],['not_recommended','Não recomendados'],['perfect','Nota 10'],['genre','Gênero'],['month','Mês'],['decade','Década']] as const).map(([k,label])=><option key={k} value={k}>{label}</option>)}
+ </select></label>
+ {options.length>0&&<label className="block">Filtro <select className="rounded border border-border bg-background p-2" value={value} onChange={e=>{setValue(e.target.value);setPage(0);}}>{options.map(o=><option key={o}>{o}</option>)}</select></label>}
+ {isPending?<p role="status">Carregando filmes…</p>:isError?<div><p role="alert">Não foi possível carregar os filmes.</p><button type="button" onClick={()=>void refetch()}>Tentar novamente</button></div>:data&&<>
+ <p>{data.total} filmes encontrados</p>
+ <ul className="space-y-2">{data.items.map(f=><li key={f.movie_id} className="flex items-center gap-3 border-b border-border py-2">
+ {f.poster_path&&/^\/[a-zA-Z0-9_.-]+$/.test(f.poster_path)&&<img src={'https://image.tmdb.org/t/p/w92'+f.poster_path} alt="" loading="lazy" className="w-10 rounded"/>}
+ <div className="min-w-0 flex-1"><strong className="break-words">{f.title}</strong><p className="text-sm text-muted-foreground">{f.recommend?'Recomendo':'Não recomendo'}</p></div><span>{fmt(f.rating)}/10</span></li>)}</ul>
+ <div className="flex flex-wrap items-center justify-between gap-2"><button type="button" disabled={page===0} onClick={()=>setPage(p=>p-1)}>Anterior</button><span>Página {page+1} de {Math.max(1,Math.ceil(data.total/20))}</span><button type="button" disabled={(page+1)*20>=data.total} onClick={()=>setPage(p=>p+1)}>Próxima</button></div>
+ </>}
+ </div>}
  </section>;
 }
