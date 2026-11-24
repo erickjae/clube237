@@ -13,7 +13,7 @@ const details = z.object({
 const jobSchema = z.object({ movie_id: z.string().uuid(), tmdb_id: z.coerce.number().int().positive(), attempts: z.number().int(), lease_until: z.string() });
 class RateLimit extends Error { constructor(readonly delay: number) { super('Rate limited'); } }
 async function fetchDetails(id: number) {
- const token = process.env.TMDB_API_TOKEN;
+ const token = process.env['TMDB_API_TOKEN'];
  if (!token) throw new Error('Missing TMDB configuration');
  const url = new URL('https://api.themoviedb.org/3/movie/'+id);
  url.searchParams.set('append_to_response','credits');
@@ -29,7 +29,7 @@ async function fetchDetails(id: number) {
  return details.parse(await response.json());
 }
 export async function processCinemaMetadata() {
- if (!process.env.TMDB_API_TOKEN) throw new Error('Missing TMDB configuration');
+ if (!process.env['TMDB_API_TOKEN']) throw new Error('Missing TMDB configuration');
  const seeded = await supabaseAdmin.rpc('seed_cinema_metadata_jobs' as never,{batch_size:100} as never);
  if (seeded.error) throw new Error('Queue seed failed');
  let completed=0, failed=0;
