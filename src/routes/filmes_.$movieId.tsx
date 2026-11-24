@@ -5,9 +5,11 @@ import { Film, Star, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { MovieQuickActions } from '@/components/movie-quick-actions';
 import { ClubShell } from '@/components/club-shell';
 import { catalogOptions } from './index';
+import { movieDetailSearchSchema, catalogSearchSchema } from '@/lib/catalog-navigation';
 import { pageHead } from '@/lib/metadata';
 
 export const Route = createFileRoute('/filmes_/$movieId')({
+  validateSearch: (search: Record<string, unknown>) => movieDetailSearchSchema.parse(search),
   head: () => pageHead('Detalhes do filme', 'Sinopse e percepções dos membros do Clube237.'),
   loader: ({ context }) => context.queryClient.ensureQueryData(catalogOptions),
   component: MovieDetails,
@@ -15,6 +17,7 @@ export const Route = createFileRoute('/filmes_/$movieId')({
 
 function MovieDetails() {
   const { movieId } = Route.useParams();
+  const { catalog } = Route.useSearch();
   const { data } = useSuspenseQuery(catalogOptions);
   const movie = data.movies.find(item => item.id === movieId);
   const reviews = data.reviews.filter(item => item.movie_id === movieId)
@@ -33,7 +36,7 @@ function MovieDetails() {
     { label: 'Compra', items: providers.buy },
   ] : [];
   return <ClubShell><div className="container-club movie-detail">
-    <Link to="/filmes" className="movie-back">← Voltar aos filmes</Link>
+    <Link to="/filmes" search={catalog ?? catalogSearchSchema.parse({})} resetScroll={!catalog} className="movie-back">← Voltar aos filmes</Link>
     {!movie ? <div className="empty-club"><h1>Filme não encontrado</h1><p>Não foi possível localizar as informações deste filme.</p></div> :
       <><div className="movie-detail-heading">
         {movie.poster_path ? <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={`Pôster de ${movie.title}`} /> : <div className="movie-detail-placeholder"><Film /></div>}
