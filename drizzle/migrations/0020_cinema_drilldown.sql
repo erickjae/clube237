@@ -1,6 +1,6 @@
 begin;
 create or replace function public.my_cinema_films(p_kind text,p_value text,p_page integer default 0)
-returns jsonb language sql stable security invoker set search_path = '' as $$
+returns jsonb language sql stable security definer set search_path = '' as $$
 with mine as (
  select distinct on (r.movie_id) r.movie_id,r.rating,r.recommend,r.created_at,m.title,m.poster_path,m.runtime,m.release_date
  from public.reviews r join public.administrators a on a.id=r.administrator_id
@@ -16,6 +16,8 @@ with mine as (
  when 'genre' then exists(select 1 from public.movie_genres mg join public.genres g on g.id=mg.genre_id where mg.movie_id=m.movie_id and g.name=p_value)
  when 'month' then to_char(date_trunc('month',m.created_at),'YYYY-MM')=p_value
  when 'decade' then ((extract(year from m.release_date)::int/10)*10)::text=p_value
+ when 'cast' then exists(select 1 from public.cinema_movie_people mp where mp.movie_id=m.movie_id and mp.role='cast' and mp.billing_order between 0 and 9 and mp.person_id::text=p_value)
+ when 'director' then exists(select 1 from public.cinema_movie_people mp where mp.movie_id=m.movie_id and mp.role='director' and mp.person_id::text=p_value)
  else false end
 ), page as (
  select * from filtered order by created_at desc,movie_id limit 20 offset (greatest(0,least(coalesce(p_page,0),100000))*20)
