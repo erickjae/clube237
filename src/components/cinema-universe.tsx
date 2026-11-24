@@ -4,6 +4,8 @@ import { myCinemaUniverse, myCinemaPeople, myCinemaAffinity, myCinemaSuggestions
 
 import { addToWatchlist } from '@/services/watchlist.functions';
 
+import { AchievementCollection } from '@/components/member-achievements';
+
 const fmt = (n: number | null) => n === null ? '—' : Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 
 export function CinemaUniverse({ memberKey }: { memberKey: string }) {
@@ -34,6 +36,7 @@ export function CinemaUniverse({ memberKey }: { memberKey: string }) {
    <div className="member-overview-stat"><ThumbsUp aria-hidden="true"/><strong>{t.reviewed ? fmt(t.recommended/t.reviewed*100)+'%' : '—'}</strong><span>Recomendo</span></div>
   </div>
   <p className="text-sm text-muted-foreground">Duração conhecida de {t.runtime_coverage} de {t.reviewed} filmes. {t.runtime_coverage > 0 && 'Equivalente a '+fmt(t.minutes/1440)+' dias de cinema.'} Não representa sessões repetidas.</p>
+  <AchievementCollection member={{id:memberKey,display_name:memberKey,avatar_url:null,about:null,total:t.reviewed,recommended:t.recommended,genres:Object.fromEntries(data.genres.map(g=>[g.name,g.total]))}} />
   {t.reviewed === 0 ? <p>Registre sua primeira avaliação para começar.</p> : <>
    <section className="member-overview-genres"><h3>Seu olhar crítico</h3><p>Menor nota: {fmt(t.min_rating)} · Maior nota: {fmt(t.max_rating)} · Notas 10: {t.perfect}</p><p>{t.recommended} recomendações · {t.reviewed-t.recommended} não recomendações</p></section>
    <section className="member-overview-genres"><h3>Seus gêneros</h3>{bars(data.genres.map(g=>({label:g.name,total:g.total})))}<p className="text-sm">Diversidade: {watchedGenres.length} de 19 gêneros TMDB.</p><p className="text-sm">Mais assistido: {favorite?.name ?? '—'} · Mais bem avaliado (mínimo 5 filmes): {loved?.name ?? 'Amostra insuficiente'}</p><p className="text-xs text-muted-foreground">Um filme pode contar em mais de um gênero.</p></section>
