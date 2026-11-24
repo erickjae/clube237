@@ -38,3 +38,11 @@ export const myCinemaAffinity = createServerFn({ method: 'GET' }).middleware([cl
  if (error || !data) throw new Error('Não foi possível carregar afinidades.');
  return data as unknown as CinemaAffinity[];
 });
+
+export type CinemaSuggestion = { id:string; title:string; poster_path:string|null; reason:string; average_rating:number; total:number };
+export const myCinemaSuggestions = createServerFn({method:'GET'}).middleware([clubAuth]).handler(async ({context})=>{
+ if(context.account.must_change_password) throw new Error('Atualize sua senha para continuar.');
+ const {data,error}=await context.supabase.rpc('my_cinema_suggestions' as never);
+ if(error || !data) throw new Error('Não foi possível carregar sugestões.');
+ return data as unknown as CinemaSuggestion[];
+});
