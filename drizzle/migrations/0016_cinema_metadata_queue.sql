@@ -20,12 +20,29 @@ begin
  return inserted;
 end;
 $$;
+create table public.cinema_metadata_control (
+ singleton boolean primary key default true check(singleton),
+ paused_until timestamptz not null default '-infinity'
+);
+insert into public.cinema_metadata_control(singleton) values(true);
+alter table public.cinema_metadata_control enable row level security;
+revoke all on public.cinema_metadata_control from public,anon,authenticated;
+grant select,update on public.cinema_metadata_control to service_role;
+create or replace function public.pause_cinema_metadata(p_delay integer)
+returns void language sql security invoker set search_path = '' as $
+ update public.cinema_metadata_control set paused_until=greatest(paused_until,now()+make_interval(secs=>greatest(60,least(p_delay,86400)))) where singleton;
+$;
+revoke all on function public.pause_cinema_metadata(integer) from public,anon,authenticated;
+grant execute on function public.pause_cinema_metadata(integer) to service_role;
 create or replace function public.claim_cinema_metadata_job()
 returns table(movie_id uuid,tmdb_id bigint,attempts integer,lease_until timestamptz)
 language sql volatile security invoker set search_path = '' as $$
-with candidate as (
+with exhausted as (
+ update public.cinema_metadata_jobs j set status='failed',lease_until=null,last_error='Retry limit reached',updated_at=now()
+ where j.status='processing' and j.attempts>=8 and j.lease_until<=now()
+), candidate as (
  select j.movie_id from public.cinema_metadata_jobs j
- where j.attempts < 8 and ((j.status in ('pending','failed') and j.next_attempt_at<=now()) or (j.status='processing' and j.lease_until<=now()))
+ where exists(select 1 from public.cinema_metadata_control c where c.singleton and c.paused_until<=now()) and j.attempts < 8 and ((j.status in ('pending','failed') and j.next_attempt_at<=now()) or (j.status='processing' and j.lease_until<=now()))
  order by j.next_attempt_at,j.movie_id limit 1 for update skip locked
 ), claimed as (
  update public.cinema_metadata_jobs j set status='processing',attempts=j.attempts+1,lease_until=now()+interval '2 minutes',updated_at=now()
