@@ -13,7 +13,7 @@ with mine as (
  join public.profiles p on p.administrator_id=a.id
  group by a.id,p.display_name having count(distinct m.movie_id)>=5
 )
-select coalesce(jsonb_agg(to_jsonb(scores) order by affinity desc,common desc,id),'[]'::jsonb) from scores;
+select coalesce(jsonb_agg(to_jsonb(scores) order by affinity desc,common desc,id),'[]'::jsonb) from (select * from scores order by affinity desc,common desc,id limit 3) scores;
 $$;
 revoke all on function public.my_cinema_affinity() from public,anon;
 grant execute on function public.my_cinema_affinity() to authenticated;
