@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Film, Clock, Star, ThumbsUp } from 'lucide-react';
-import { myCinemaUniverse, myCinemaPeople, type CinemaPeople } from '@/services/cinema-universe.functions';
+import { myCinemaUniverse, myCinemaPeople, myCinemaAffinity, type CinemaPeople } from '@/services/cinema-universe.functions';
 
 const fmt = (n: number | null) => n === null ? '—' : Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 
@@ -39,6 +39,7 @@ export function CinemaUniverse({ memberKey }: { memberKey: string }) {
    <section className="member-overview-genres"><h3>Décadas</h3>{bars(data.decades.map(d=>({label:String(d.decade),total:d.total})))}</section>
    <section className="member-overview-genres"><h3>Memórias: seus cinco favoritos</h3>{data.favorites.map(f=><p key={f.movie_id}>{f.title} — {fmt(f.rating)}/10</p>)}</section>
    <CinemaCredits memberKey={memberKey} reviewed={t.reviewed} />
+   <CinemaAffinityPanel memberKey={memberKey} />
   </>}
  </section>;
 }
@@ -73,4 +74,13 @@ function CinemaCredits({ memberKey, reviewed }: { memberKey: string; reviewed: n
   {ranking('Diretores mais presentes',data.directors)}
   <section className="member-overview-genres"><h3>O cinema pelo mundo</h3><h4>Países de produção</h4>{data.countries.length ? <ul>{names(data.countries,'region')}</ul> : <p>Dados ainda indisponíveis.</p>}<h4>Idiomas originais</h4>{data.languages.length ? <ul>{names(data.languages,'language')}</ul> : <p>Dados ainda indisponíveis.</p>}<p className="text-xs text-muted-foreground">Coproduções podem contar em mais de um país.</p></section>
  </>;
+}
+
+function CinemaAffinityPanel({memberKey}: {memberKey:string}) {
+ const {data,isPending,isError,refetch}=useQuery({queryKey:['my-cinema-affinity',memberKey],queryFn:()=>myCinemaAffinity(),staleTime:0,refetchOnMount:'always'});
+ return <section className="member-overview-genres">
+  <h3>Quem compartilha seu olhar?</h3>
+  <p className="text-sm text-muted-foreground">Afinidade: 70% proximidade das notas e 30% concordância nas recomendações. Mínimo de cinco filmes em comum.</p>
+  {isPending ? <p role="status">Calculando afinidades…</p> : isError ? <div><p role="alert">Afinidades indisponíveis.</p><button type="button" onClick={()=>void refetch()}>Tentar novamente</button></div> : !data?.length ? <p>Ainda não há membros com avaliações suficientes em comum.</p> : <div className="member-overview-genre-list">{data.map(p=><div className="member-overview-genre" key={p.id}><div><span>{p.display_name} · {p.common} filmes em comum</span><strong>{fmt(p.affinity)}%</strong></div><div className="member-overview-track" aria-hidden="true"><span style={{width:Math.max(0,Math.min(100,p.affinity))+'%'}}/></div></div>)}</div>}
+ </section>;
 }
