@@ -639,3 +639,31 @@ button.dashboard-nav-entry:hover { color: var(--foreground); }
 .cinema-donut span {width:86px;height:86px;display:grid;place-items:center;background:var(--card);border-radius:50%;font-weight:700;font-size:1.25rem;}
 .cinema-universe button:focus-visible,.cinema-universe select:focus-visible {outline:2px solid var(--foreground);outline-offset:3px;}
 @media(max-width:480px){.cinema-universe .cinema-stats{grid-template-columns:repeat(2,minmax(0,1fr));}.cinema-universe .cinema-identity{padding:20px;}}
+
+/* Public guide and cinema introduction */
+.cinema-hero { height: auto; min-height: 560px; }
+.cinema-content { padding-bottom: 100px; }
+.cinema-introduction { max-width: 550px; margin: 12px auto 0; font-size: 13px; line-height: 1.7; color: var(--foreground); }
+.cinema-guide-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+.club-guide { max-width: 900px; padding-bottom: 64px; }
+.guide-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; }
+.guide-tabs button { padding: 12px 18px; border: 1px solid var(--border); border-radius: 6px; color: var(--muted-foreground); }
+.guide-tabs button[aria-pressed="true"] { background: var(--accent); border-color: var(--primary); color: var(--foreground); }
+.guide-sections { display: grid; gap: 12px; }
+.guide-section, .guide-faq { padding: 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+.guide-section { display: flex; align-items: flex-start; gap: 16px; }
+.guide-section > svg { flex-shrink: 0; width: 24px; height: 24px; color: var(--primary); }
+.guide-section h2 { font-size: 19px; font-weight: 600; margin-bottom: 6px; }
+.guide-section p, .guide-faq p { font-size: 14px; line-height: 1.75; color: var(--muted-foreground); }
+.guide-faq summary { cursor: pointer; font-weight: 600; }
+.guide-faq p { margin-top: 12px; }
+.guide-signoff { margin-top: 32px; font-style: italic; color: var(--muted-foreground); }
+.guide-return { display: inline-block; margin-top: 16px; text-decoration: underline; }
+@media (max-width: 767px) {
+  .cinema-hero { height: auto; min-height: 455px; }
+  .cinema-content { padding-bottom: 95px; }
+  .cinema-introduction { max-width: 320px; font-size: 12px; }
+  .guide-section, .guide-faq { padding: 15px; }
+  .guide-section { gap: 12px; }
+  .guide-tabs button { flex: 1 1 140px; padding: 10px; font-size: 13px; }
+}
