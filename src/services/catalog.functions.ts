@@ -7,7 +7,7 @@ export const publicCatalog = createServerFn({ method: 'GET' }).handler(async () 
   const [movies, reviews, profiles, queue, genres, favoriteGenres, movieGenres] = await Promise.all([
     db.from('movies').select('id, tmdb_id, title, poster_path, release_date, overview').order('created_at', { ascending: false }).limit(500),
     db.from('reviews').select('id, rating, recommend, comment, movie_id, administrator_id, created_at').order('created_at', { ascending: false }).limit(1000),
-    db.from('profiles').select('id, administrator_id, display_name, avatar_url, about, rating_philosophy').order('created_at').limit(6),
+    db.from('profiles').select('id, administrator_id, display_name, avatar_url, about, rating_philosophy').order('created_at'),
     db.from('watchlist').select('id, movie_id, administrator_id, added_at').order('added_at', { ascending: false }).limit(24),
     db.from('genres').select('id, name'),
     db.from('profile_favorite_genres').select('profile_id, genre_id'),
